@@ -543,39 +543,61 @@ function App() {
           
           {showLogo ? (
             <div className="logo-brand-showcase" onClick={() => setCurrentPage('home')}>
-              {/* Custom PhoneFlip Logo - Inspired by Clean Modern Design */}
+              {/* Modern PhoneFlip Logo - Sleek Professional Design */}
               <div className="phoneflip-logo">
                 <div className="logo-icon-container">
-                  <svg className="phoneflip-icon" width="56" height="56" viewBox="0 0 100 100" fill="none">
-                    {/* Modern Rounded Background */}
-                    <rect x="8" y="8" width="84" height="84" rx="28" fill="url(#modernGradient)" stroke="none"/>
+                  <svg className="phoneflip-icon" width="48" height="48" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Outer circle with gradient - Modern design */}
+                    <circle cx="60" cy="60" r="55" fill="url(#headerLogoGradient)" stroke="url(#headerBorderGradient)" strokeWidth="2"/>
                     
-                    {/* Phone Device */}
-                    <rect x="42" y="25" width="16" height="28" rx="3" fill="white" stroke="none"/>
-                    <rect x="44" y="28" width="12" height="20" rx="1.5" fill="#1e40af" opacity="0.1"/>
+                    {/* Phone outline - sleek minimal design */}
+                    <rect x="48" y="38" width="24" height="44" rx="6" stroke="white" strokeWidth="2.5" fill="none"/>
+                    <circle cx="60" cy="45" r="1.2" fill="white" opacity="0.9"/>
+                    <rect x="54" y="74" width="12" height="2" rx="1" fill="white" opacity="0.9"/>
                     
-                    {/* Screen Details */}
-                    <rect x="46" y="30" width="8" height="0.8" rx="0.4" fill="white"/>
-                    <circle cx="50" cy="52" r="1.2" fill="white"/>
+                    {/* Modern curved exchange arrows */}
+                    <path 
+                      d="M28 52 Q23 52 23 57 Q23 67 33 67 Q38 67 38 62" 
+                      stroke="#00e5cc" 
+                      strokeWidth="2.8" 
+                      fill="none" 
+                      strokeLinecap="round"
+                      markerEnd="url(#headerArrow)"
+                    />
+                    <path 
+                      d="M92 68 Q97 68 97 63 Q97 53 87 53 Q82 53 82 58" 
+                      stroke="#00e5cc" 
+                      strokeWidth="2.8" 
+                      fill="none" 
+                      strokeLinecap="round"
+                      markerEnd="url(#headerArrow)"
+                    />
                     
-                    {/* Modern Flip Arrows - Clean Curved Design */}
-                    <path d="M28 42 C28 36, 32 32, 38 32" stroke="white" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
-                    <path d="M35 29 L38 32 L35 35" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                    {/* Central exchange symbol */}
+                    <circle cx="60" cy="60" r="6" fill="rgba(255,255,255,0.15)" stroke="white" strokeWidth="1.2"/>
+                    <path d="M57 58 L63 58 M63 62 L57 62 M61 56 L64 58 L61 60 M59 60 L56 62 L59 64" 
+                          stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
                     
-                    <path d="M72 58 C72 64, 68 68, 62 68" stroke="white" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
-                    <path d="M65 71 L62 68 L65 65" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                    {/* Abstract tech elements */}
+                    <circle cx="30" cy="35" r="1.5" fill="#00e5cc" opacity="0.6"/>
+                    <circle cx="90" cy="85" r="1.5" fill="#00e5cc" opacity="0.6"/>
+                    <rect x="85" y="30" width="2" height="8" rx="1" fill="white" opacity="0.4"/>
+                    <rect x="33" y="82" width="2" height="8" rx="1" fill="white" opacity="0.4"/>
                     
-                    {/* Subtle Accent Elements */}
-                    <circle cx="32" cy="32" r="1.5" fill="white" opacity="0.4"/>
-                    <circle cx="68" cy="68" r="1.5" fill="white" opacity="0.4"/>
-                    
+                    {/* Gradient definitions */}
                     <defs>
-                      <linearGradient id="modernGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <linearGradient id="headerLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="#1e40af"/>
-                        <stop offset="30%" stopColor="#3b82f6"/>
-                        <stop offset="70%" stopColor="#6366f1"/>
-                        <stop offset="100%" stopColor="#8b5cf6"/>
+                        <stop offset="40%" stopColor="#0f766e"/>
+                        <stop offset="100%" stopColor="#374151"/>
                       </linearGradient>
+                      <linearGradient id="headerBorderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#3b82f6"/>
+                        <stop offset="100%" stopColor="#14b8a6"/>
+                      </linearGradient>
+                      <marker id="headerArrow" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+                        <polygon points="0 0, 6 2.5, 0 5" fill="#00e5cc"/>
+                      </marker>
                     </defs>
                   </svg>
                   
@@ -584,7 +606,7 @@ function App() {
                 
                 <div className="brand-identity">
                   <h1 className="brand-title-sleek">PhoneFlip</h1>
-                  <p className="brand-tagline-new">Your next phone just a flip away</p>
+                  <p className="brand-tagline-new">Buy • Sell • Exchange</p>
                 </div>
               </div>
             </div>
