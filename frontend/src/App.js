@@ -627,7 +627,7 @@ function App() {
     };
 
     return (
-      <div className="page">
+      <div className="page auth-page">
         <Header title="" showBack={true} showSearch={false} showLogo={true} />
         
         <div className="content">
