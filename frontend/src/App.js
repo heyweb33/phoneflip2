@@ -406,39 +406,44 @@ function App() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Header Component with Logo
+  // Header Component with Enhanced Logo Visibility
   const Header = ({ title = "", showBack = false, showSearch = true, showProfile = false, showLogo = false }) => (
     <div className="header">
       <div className="header-content">
         {showBack && (
           <button onClick={() => setCurrentPage('home')} className="back-btn">
-            ←
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
           </button>
         )}
         
         {showLogo ? (
-          <div className="header-logo" onClick={() => setCurrentPage('home')}>
+          <div className="header-logo-enhanced" onClick={() => setCurrentPage('home')}>
             <img 
               src="https://i.ibb.co/JjYDNHJn/Untitled-design-6.png" 
               alt="PhoneFlip" 
-              className="header-logo-img"
+              className="header-logo-img-enhanced"
             />
           </div>
         ) : (
           <h1 className="header-title">{title || "phoneflip"}</h1>
         )}
         
-        {showSearch && (
-          <button onClick={() => setCurrentPage('search')} className="search-btn">
-            🔍
-          </button>
-        )}
         {showProfile && user && (
           <button onClick={() => setCurrentPage('profile')} className="profile-btn">
-            👤
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
           </button>
         )}
+        
+        {!showProfile && !showBack && (
+          <div className="header-spacer"></div>
+        )}
       </div>
+      
+      {/* Simplified search bar - only on home page */}
       {showSearch && currentPage === 'home' && (
         <div className="search-container">
           <input
@@ -449,7 +454,11 @@ function App() {
             onChange={(e) => setFilters({...filters, search: e.target.value})}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
-          <button onClick={() => handleSearch()} className="search-icon">🔍</button>
+          <button onClick={() => handleSearch()} className="search-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+          </button>
         </div>
       )}
     </div>
