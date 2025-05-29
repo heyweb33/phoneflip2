@@ -23,6 +23,7 @@ function App() {
     maxPrice: '',
     sortBy: 'recent'
   });
+  const [selectedListing, setSelectedListing] = useState(null);
   // Sample phone data with realistic details
   const [samplePhones] = useState([
     {
