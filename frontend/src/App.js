@@ -2429,8 +2429,52 @@ function App() {
   );
 
   // Main render based on current page
+  // Navigation functions
+  const handlePhoneClick = (phone) => {
+    setSelectedPhone(phone);
+    setCurrentPage('phoneDetail');
+  };
+
+  const handleShopClick = (shop) => {
+    setSelectedShop(shop);
+    setCurrentPage('shopDetail');
+  };
+
+  const handleBackFromDetail = () => {
+    setSelectedPhone(null);
+    setSelectedShop(null);
+    setCurrentPage('home');
+  };
+
+  const handleContactSeller = (phone) => {
+    setToast({ message: `Contacting ${phone.seller.name}...`, type: 'success' });
+    // Here you would implement actual contact functionality
+  };
+
+  const handleContactShop = (shop) => {
+    setToast({ message: `Contacting ${shop.name}...`, type: 'success' });
+    // Here you would implement actual contact functionality
+  };
+
   const renderCurrentPage = () => {
     switch (currentPage) {
+      case 'phoneDetail':
+        return (
+          <PhoneDetailPage
+            phone={selectedPhone}
+            onBack={handleBackFromDetail}
+            onContactSeller={handleContactSeller}
+          />
+        );
+      case 'shopDetail':
+        return (
+          <ShopPage
+            shop={selectedShop}
+            onBack={handleBackFromDetail}
+            onContactShop={handleContactShop}
+            onPhoneClick={handlePhoneClick}
+          />
+        );
       case 'authSelection':
         return <AuthSelectionPage />;
       case 'login':
