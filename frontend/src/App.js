@@ -556,11 +556,11 @@ function App() {
 
   // Auth Selection Page
   const AuthSelectionPage = () => (
-    <div className="page">
+    <div className="page auth-page">
       <Header title="" showBack={true} showSearch={false} showLogo={true} />
       
       <div className="content centered">
-        <Logo />
+        <Logo context="auth-page" />
         
         <div className="auth-options">
           <button 
