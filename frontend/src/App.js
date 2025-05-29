@@ -735,37 +735,60 @@ function App() {
   const Logo = ({ compact = false, context = "default" }) => (
     <div className={`logo-container ${compact ? 'compact' : ''} ${context}`}>
       <div className="logo-image-container">
-        <img 
-          src="https://i.postimg.cc/jSBNhvLQ/Untitled-design-6.png" 
-          alt="PhoneFlip Logo" 
-          className="logo-image"
-          onError={(e) => {
-            // Fallback in case image fails to load
-            e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'block';
-          }}
-        />
-        <div className="logo-fallback" style={{display: 'none'}}>
-          <div className="logo-icon">
-            <svg width="60" height="60" viewBox="0 0 120 120" fill="none">
-              <rect width="120" height="120" rx="28" fill="url(#logoGradient)"/>
-              <rect x="45" y="35" width="30" height="50" rx="4" fill="white" stroke="none"/>
-              <rect x="48" y="40" width="24" height="35" rx="2" fill="#1e40af"/>
-              <circle cx="60" cy="79" r="3" fill="white"/>
-              <path d="M25 45 C25 35, 35 25, 45 25 L50 25" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
-              <path d="M42 20 L50 25 L42 30" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
-              <path d="M95 75 C95 85, 85 95, 75 95 L70 95" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
-              <path d="M78 100 L70 95 L78 90" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
-              <defs>
-                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1e40af"/>
-                  <stop offset="50%" stopColor="#3b82f6"/>
-                  <stop offset="100%" stopColor="#1e40af"/>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-        </div>
+        {/* Modern PhoneFlip Logo */}
+        <svg 
+          className="h-12 w-12" 
+          viewBox="0 0 120 120" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Outer circle with gradient */}
+          <circle cx="60" cy="60" r="55" fill="url(#logoGradient)" stroke="url(#borderGradient)" strokeWidth="2"/>
+          
+          {/* Phone outline - sleek design */}
+          <rect x="45" y="35" width="30" height="50" rx="8" stroke="white" strokeWidth="2.5" fill="none"/>
+          <circle cx="60" cy="42" r="1.5" fill="white" opacity="0.8"/>
+          <rect x="52" y="75" width="16" height="2.5" rx="1.25" fill="white" opacity="0.8"/>
+          
+          {/* Rotation/Exchange arrows - modern curved design */}
+          <path 
+            d="M25 50 Q20 50 20 55 Q20 65 30 65 Q35 65 35 60" 
+            stroke="#00e5cc" 
+            strokeWidth="3" 
+            fill="none" 
+            strokeLinecap="round"
+            markerEnd="url(#modernArrow)"
+          />
+          <path 
+            d="M95 70 Q100 70 100 65 Q100 55 90 55 Q85 55 85 60" 
+            stroke="#00e5cc" 
+            strokeWidth="3" 
+            fill="none" 
+            strokeLinecap="round"
+            markerEnd="url(#modernArrow)"
+          />
+          
+          {/* Exchange symbol in center */}
+          <circle cx="60" cy="60" r="8" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1.5"/>
+          <path d="M56 57 L64 57 M64 63 L56 63 M62 55 L66 57 L62 59 M58 61 L54 63 L58 65" 
+                stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          
+          {/* Gradient definitions */}
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#1e40af"/>
+              <stop offset="50%" stopColor="#0f766e"/>
+              <stop offset="100%" stopColor="#374151"/>
+            </linearGradient>
+            <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#3b82f6"/>
+              <stop offset="100%" stopColor="#14b8a6"/>
+            </linearGradient>
+            <marker id="modernArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+              <polygon points="0 0, 8 3, 0 6" fill="#00e5cc"/>
+            </marker>
+          </defs>
+        </svg>
       </div>
       {!compact && context !== "header" && (
         <>
