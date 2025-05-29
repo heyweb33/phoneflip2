@@ -1,52 +1,1881 @@
-import { useEffect } from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect, useRef } from 'react';
+import './App.css';
+import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
+function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [listings, setListings] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [phoneBrands, setPhoneBrands] = useState({});
+  const [storageOptions, setStorageOptions] = useState([]);
+  const [conditionOptions, setConditionOptions] = useState([]);
+  const [filters, setFilters] = useState({
+    brand: '',
+    city: '',
+    condition: '',
+    search: '',
+    minPrice: '',
+    maxPrice: '',
+    sortBy: 'recent'
+  });
+  const [selectedListing, setSelectedListing] = useState(null);
+  const [searchHistory, setSearchHistory] = useState(['iPhone 13', 'Samsung S24', 'Xiaomi Note']);
+  const [favorites, setFavorites] = useState([]);
+  const [conversations, setConversations] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [savedSearches, setSavedSearches] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [toast, setToast] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMoreListings, setHasMoreListings] = useState(true);
+  const wsRef = useRef(null);
+
+  // Set up axios interceptor for auth
+  useEffect(() => {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      loadCurrentUser();
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+    }
+  }, [token]);
+
+  const loadCurrentUser = async () => {
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const response = await axios.get(`${API}/auth/me`);
+      setUser(response.data);
+      connectWebSocket();
+    } catch (error) {
+      console.error('Error loading current user:', error);
+      // Clear invalid token
+      setToken(null);
+      localStorage.removeItem('token');
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  // WebSocket connection for real-time messaging
+  const connectWebSocket = () => {
+    if (user && !wsRef.current) {
+      // For now, we'll skip WebSocket since it needs additional setup
+      // TODO: Implement WebSocket when ready
+      console.log('WebSocket connection would be established for user:', user.id);
+    }
+  };
 
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+  // Load initial data
+  useEffect(() => {
+    loadInitialData();
+    if (user) {
+      loadUserData();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadListings();
+  }, [filters.brand, filters.city, filters.condition, filters.sortBy]);
+
+  const loadInitialData = async () => {
+    try {
+      const [citiesRes, brandsRes, storageRes, conditionRes] = await Promise.all([
+        axios.get(`${API}/cities`),
+        axios.get(`${API}/phone-brands`),
+        axios.get(`${API}/storage-options`),
+        axios.get(`${API}/condition-options`)
+      ]);
+
+      setCities(citiesRes.data.cities);
+      setPhoneBrands(brandsRes.data.brands);
+      setStorageOptions(storageRes.data.storage_options);
+      setConditionOptions(conditionRes.data.condition_options);
+    } catch (error) {
+      console.error('Error loading initial data:', error);
+      showToast('Error loading app data', 'error');
+    }
+  };
+
+  const loadUserData = async () => {
+    if (!user) return;
+    
+    try {
+      await Promise.all([
+        loadFavorites(),
+        loadConversations(),
+        loadSavedSearches(),
+        loadAnalytics()
+      ]);
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  };
+
+  const loadListings = async (searchFilters = {}, pageNum = 1, append = false) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      
+      // Add filters
+      Object.entries({...filters, ...searchFilters}).forEach(([key, value]) => {
+        if (value && key !== 'search') {
+          if (key === 'minPrice' || key === 'maxPrice') {
+            params.append(key.replace('Price', '_price'), value);
+          } else {
+            params.append(key === 'sortBy' ? 'sort_by' : key, value);
+          }
+        }
+      });
+      
+      if (searchFilters.search || filters.search) {
+        params.append('search', searchFilters.search || filters.search);
+      }
+      
+      params.append('page', pageNum);
+      params.append('limit', '20');
+
+      const response = await axios.get(`${API}/listings?${params}`);
+      
+      if (append) {
+        setListings(prev => [...prev, ...response.data]);
+      } else {
+        setListings(response.data);
+      }
+      
+      setHasMoreListings(response.data.length === 20);
+      setPage(pageNum);
+    } catch (error) {
+      console.error('Error loading listings:', error);
+      showToast('Error loading listings', 'error');
+      setListings([]); // Set empty array on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMoreListings = () => {
+    if (hasMoreListings && !loading) {
+      loadListings({}, page + 1, true);
+    }
+  };
+
+  const loadFavorites = async () => {
+    try {
+      const response = await axios.get(`${API}/favorites`);
+      setFavorites(response.data);
+    } catch (error) {
+      console.error('Error loading favorites:', error);
+    }
+  };
+
+  const loadConversations = async () => {
+    try {
+      const response = await axios.get(`${API}/conversations`);
+      setConversations(response.data);
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+    }
+  };
+
+  const loadMessages = async (conversationId) => {
+    try {
+      const response = await axios.get(`${API}/conversations/${conversationId}/messages`);
+      setMessages(response.data);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  };
+
+  const loadSavedSearches = async () => {
+    try {
+      const response = await axios.get(`${API}/saved-searches`);
+      setSavedSearches(response.data);
+    } catch (error) {
+      console.error('Error loading saved searches:', error);
+    }
+  };
+
+  const loadAnalytics = async () => {
+    try {
+      const response = await axios.get(`${API}/analytics`);
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+    }
+  };
+
+  const loadUserReviews = async (userId) => {
+    try {
+      const response = await axios.get(`${API}/users/${userId}/reviews`);
+      setReviews(response.data);
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+    }
+  };
+
+  // Authentication functions
+  const handleLogin = async (loginData) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${API}/auth/login`, loginData);
+      
+      setToken(response.data.access_token);
+      setUser(response.data.user);
+      localStorage.setItem('token', response.data.access_token);
+      
+      showToast('Login successful!', 'success');
+      setCurrentPage('home');
+    } catch (error) {
+      showToast(error.response?.data?.detail || 'Login failed', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (registerData) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${API}/auth/register`, registerData);
+      
+      setToken(response.data.access_token);
+      setUser(response.data.user);
+      localStorage.setItem('token', response.data.access_token);
+      
+      showToast('Registration successful!', 'success');
+      setCurrentPage('congratulations');
+    } catch (error) {
+      showToast(error.response?.data?.detail || 'Registration failed', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider, token, userInfo) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${API}/auth/social-login`, {
+        provider,
+        token,
+        user_info: userInfo
+      });
+      
+      setToken(response.data.access_token);
+      setUser(response.data.user);
+      localStorage.setItem('token', response.data.access_token);
+      
+      showToast('Login successful!', 'success');
+      setCurrentPage('home');
+    } catch (error) {
+      showToast(error.response?.data?.detail || 'Social login failed', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('token');
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    setCurrentPage('home');
+    showToast('Logged out successfully', 'info');
+  };
+
+  // Search and filter functions
+  const handleSearch = (searchTerm = filters.search) => {
+    const searchParams = {};
+    if (searchTerm) {
+      searchParams.search = searchTerm;
+      // Add to search history
+      if (!searchHistory.includes(searchTerm)) {
+        setSearchHistory([searchTerm, ...searchHistory.slice(0, 4)]);
+      }
+    }
+    
+    setFilters(prev => ({...prev, search: searchTerm}));
+    loadListings(searchParams);
+    setCurrentPage('searchResults');
+  };
+
+  const applySavedSearch = (savedSearch) => {
+    setFilters(prev => ({...prev, ...savedSearch.search_query}));
+    loadListings(savedSearch.search_query);
+    setCurrentPage('searchResults');
+  };
+
+  const saveCurrentSearch = async (name) => {
+    try {
+      await axios.post(`${API}/saved-searches`, {
+        name,
+        search_query: filters
+      });
+      loadSavedSearches();
+      showToast('Search saved successfully', 'success');
+    } catch (error) {
+      showToast('Error saving search', 'error');
+    }
+  };
+
+  // Favorites functions
+  const toggleFavorite = async (listingId) => {
+    if (!user) {
+      showToast('Please login to add favorites', 'error');
+      return;
+    }
+
+    try {
+      const isFavorited = favorites.some(fav => fav.id === listingId);
+      
+      if (isFavorited) {
+        await axios.delete(`${API}/favorites/${listingId}`);
+        showToast('Removed from favorites', 'info');
+      } else {
+        await axios.post(`${API}/favorites/${listingId}`);
+        showToast('Added to favorites', 'success');
+      }
+      
+      loadFavorites();
+    } catch (error) {
+      showToast('Error updating favorites', 'error');
+    }
+  };
+
+  // Messaging functions
+  const sendMessage = async (receiverId, listingId, content, messageType = 'text', offerAmount = null) => {
+    if (!user) {
+      showToast('Please login to send messages', 'error');
+      return;
+    }
+
+    try {
+      await axios.post(`${API}/messages`, {
+        receiver_id: receiverId,
+        listing_id: listingId,
+        content,
+        message_type: messageType,
+        offer_amount: offerAmount
+      });
+      
+      if (selectedConversation) {
+        loadMessages(selectedConversation.id);
+      }
+      loadConversations();
+    } catch (error) {
+      showToast('Error sending message', 'error');
+    }
+  };
+
+  // Review functions
+  const submitReview = async (reviewedUserId, listingId, rating, comment) => {
+    if (!user) {
+      showToast('Please login to submit reviews', 'error');
+      return;
+    }
+
+    try {
+      await axios.post(`${API}/reviews`, {
+        reviewed_user_id: reviewedUserId,
+        listing_id: listingId,
+        rating,
+        comment
+      });
+      
+      showToast('Review submitted successfully', 'success');
+      loadUserReviews(reviewedUserId);
+    } catch (error) {
+      showToast(error.response?.data?.detail || 'Error submitting review', 'error');
+    }
+  };
+
+  // Toast notification function
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  // Header Component
+  const Header = ({ title = "phoneflip", showBack = false, showSearch = true, showProfile = false }) => (
+    <div className="header">
+      <div className="header-content">
+        {showBack && (
+          <button onClick={() => setCurrentPage('home')} className="back-btn">
+            ←
+          </button>
+        )}
+        <h1 className="header-title">{title}</h1>
+        {showSearch && (
+          <button onClick={() => setCurrentPage('search')} className="search-btn">
+            🔍
+          </button>
+        )}
+        {showProfile && user && (
+          <button onClick={() => setCurrentPage('profile')} className="profile-btn">
+            👤
+          </button>
+        )}
+      </div>
+      {showSearch && currentPage === 'home' && (
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search Mobile Phones"
+            className="search-input"
+            value={filters.search}
+            onChange={(e) => setFilters({...filters, search: e.target.value})}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          />
+          <button onClick={() => handleSearch()} className="search-icon">🔍</button>
+        </div>
+      )}
     </div>
   );
-};
 
-function App() {
+  // Bottom Navigation with modern icons
+  const BottomNav = () => (
+    <div className="bottom-nav">
+      <button 
+        className={`nav-item ${currentPage === 'home' ? 'active' : ''}`}
+        onClick={() => setCurrentPage('home')}
+      >
+        <span className="nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+        </span>
+      </button>
+      <button 
+        className={`nav-item ${currentPage === 'categories' ? 'active' : ''}`}
+        onClick={() => setCurrentPage('categories')}
+      >
+        <span className="nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+          </svg>
+        </span>
+      </button>
+      <button 
+        className={`nav-item ${currentPage === 'sell' ? 'active' : ''}`}
+        onClick={() => user ? setCurrentPage('userTypeSelection') : setCurrentPage('authSelection')}
+      >
+        <span className="nav-icon orange-plus">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+        </span>
+      </button>
+      <button 
+        className={`nav-item ${currentPage === 'messages' ? 'active' : ''}`}
+        onClick={() => user ? setCurrentPage('messages') : setCurrentPage('authSelection')}
+      >
+        <span className="nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+          </svg>
+        </span>
+        {conversations.length > 0 && (
+          <span className="notification-badge">{conversations.reduce((sum, conv) => sum + conv.unread_count, 0)}</span>
+        )}
+      </button>
+      <button 
+        className={`nav-item ${currentPage === 'profile' ? 'active' : ''}`}
+        onClick={() => user ? setCurrentPage('profile') : setCurrentPage('authSelection')}
+      >
+        <span className="nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+        </span>
+      </button>
+    </div>
+  );
+
+  // Logo Component with your actual design
+  const Logo = () => (
+    <div className="logo-container">
+      <div className="logo-icon">
+        <svg width="80" height="80" viewBox="0 0 120 120" fill="none">
+          <rect width="120" height="120" rx="28" fill="url(#logoGradient)"/>
+          
+          {/* Phone with swap arrows */}
+          <rect x="45" y="35" width="30" height="50" rx="4" fill="white" stroke="none"/>
+          <rect x="48" y="40" width="24" height="35" rx="2" fill="#1e40af"/>
+          <circle cx="60" cy="79" r="3" fill="white"/>
+          
+          {/* Curved swap arrows */}
+          <path d="M25 45 C25 35, 35 25, 45 25 L50 25" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+          <path d="M42 20 L50 25 L42 30" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
+          
+          <path d="M95 75 C95 85, 85 95, 75 95 L70 95" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+          <path d="M78 100 L70 95 L78 90" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
+          
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#1e40af"/>
+              <stop offset="50%" stopColor="#3b82f6"/>
+              <stop offset="100%" stopColor="#1e40af"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h1 className="logo-text">phoneflip</h1>
+      <p className="logo-tagline">Your Next Phone, Just a Flip Away!</p>
+    </div>
+  );
+
+  // Auth Selection Page
+  const AuthSelectionPage = () => (
+    <div className="page">
+      <Header title="Welcome" showBack={true} showSearch={false} />
+      
+      <div className="content centered">
+        <Logo />
+        
+        <div className="auth-options">
+          <button 
+            className="auth-option-btn primary"
+            onClick={() => setCurrentPage('login')}
+          >
+            Login to Your Account
+          </button>
+          
+          <button 
+            className="auth-option-btn secondary"
+            onClick={() => setCurrentPage('register')}
+          >
+            Create New Account
+          </button>
+          
+          <div className="social-login-section">
+            <p className="social-login-text">Or continue with</p>
+            <div className="social-buttons">
+              <button 
+                className="social-btn google"
+                onClick={() => showToast('Google login - Add your API key', 'info')}
+              >
+                🔍 Google
+              </button>
+              <button 
+                className="social-btn facebook"
+                onClick={() => showToast('Facebook login - Add your API key', 'info')}
+              >
+                📘 Facebook
+              </button>
+              <button 
+                className="social-btn apple"
+                onClick={() => showToast('Apple login - Add your API key', 'info')}
+              >
+                🍎 Apple
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+
+  // Login Page
+  const LoginPage = () => {
+    const [formData, setFormData] = useState({
+      email: '',
+      phone: '',
+      password: '',
+      loginMethod: 'email'
+    });
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      handleLogin({
+        email: formData.loginMethod === 'email' ? formData.email : null,
+        phone: formData.loginMethod === 'phone' ? formData.phone : null,
+        password: formData.password,
+        login_method: formData.loginMethod
+      });
+    };
+
+    return (
+      <div className="page">
+        <Header title="Login" showBack={true} showSearch={false} />
+        
+        <div className="content">
+          <form onSubmit={handleSubmit} className="form">
+            <div className="form-group">
+              <label>Login Method</label>
+              <select
+                className="form-input"
+                value={formData.loginMethod}
+                onChange={(e) => setFormData({...formData, loginMethod: e.target.value})}
+              >
+                <option value="email">Email</option>
+                <option value="phone">Phone Number</option>
+              </select>
+            </div>
+
+            {formData.loginMethod === 'email' ? (
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  required
+                  className="form-input"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                />
+              </div>
+            ) : (
+              <div className="form-group">
+                <label>Phone Number</label>
+                <input
+                  type="tel"
+                  required
+                  className="form-input"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                />
+              </div>
+            )}
+
+            <div className="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                required
+                className="form-input"
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+              />
+            </div>
+
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
+          
+          <div className="auth-links">
+            <button 
+              className="link-btn"
+              onClick={() => setCurrentPage('register')}
+            >
+              Don't have an account? Register
+            </button>
+          </div>
+        </div>
+
+        <BottomNav />
+      </div>
+    );
+  };
+
+  // Enhanced Registration Form with Social Login
+  const RegistrationForm = () => {
+    const [formData, setFormData] = useState({
+      name: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: '',
+      userType: 'individual',
+      city: '',
+      address: '',
+      shopName: '',
+      profilePicture: null
+    });
+    const [step, setStep] = useState(1);
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      
+      if (formData.password !== formData.confirmPassword) {
+        showToast('Passwords do not match', 'error');
+        return;
+      }
+
+      handleRegister({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        user_type: formData.userType,
+        city: formData.city,
+        address: formData.address || null,
+        shop_name: formData.userType === 'shop' ? formData.shopName : null,
+        login_method: 'email'
+      });
+    };
+
+    const handleSocialLogin = (provider) => {
+      showToast(`${provider} login integration ready - Add your API keys`, 'info');
+    };
+
+    return (
+      <div className="page">
+        <Header title="Create Account" showBack={true} showSearch={false} />
+        
+        <div className="content">
+          <div className="auth-container">
+            <div className="auth-header">
+              <h2>Join PhoneFlip</h2>
+              <p>Create your account and start trading phones</p>
+            </div>
+
+            {/* Social Login Options */}
+            <div className="social-login-section">
+              <p className="social-title">Continue with</p>
+              <div className="social-buttons-grid">
+                <button className="social-btn google" onClick={() => handleSocialLogin('Google')}>
+                  <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                  Google
+                </button>
+                
+                <button className="social-btn facebook" onClick={() => handleSocialLogin('Facebook')}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877f2">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                  Facebook
+                </button>
+                
+                <button className="social-btn apple" onClick={() => handleSocialLogin('Apple')}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#000">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                  </svg>
+                  Apple
+                </button>
+              </div>
+            </div>
+
+            <div className="divider">
+              <span>or</span>
+            </div>
+
+            {/* Multi-step Registration Form */}
+            <form onSubmit={handleSubmit} className="registration-form">
+              {step === 1 && (
+                <div className="form-step">
+                  <h3>Basic Information</h3>
+                  
+                  <div className="form-group">
+                    <label>Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      className="form-input"
+                      placeholder="Enter your full name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Email Address</label>
+                    <input
+                      type="email"
+                      required
+                      className="form-input"
+                      placeholder="your@email.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Phone Number</label>
+                    <input
+                      type="tel"
+                      required
+                      className="form-input"
+                      placeholder="+92 300 0000000"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    />
+                  </div>
+
+                  <button type="button" className="next-btn" onClick={() => setStep(2)}>
+                    Continue
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                    </svg>
+                  </button>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div className="form-step">
+                  <h3>Account Security</h3>
+                  
+                  <div className="form-group">
+                    <label>Password</label>
+                    <input
+                      type="password"
+                      required
+                      className="form-input"
+                      placeholder="Create a strong password"
+                      value={formData.password}
+                      onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    />
+                    <div className="password-strength">
+                      <span className={`strength-indicator ${formData.password.length > 6 ? 'good' : ''}`}></span>
+                      <span className={`strength-indicator ${formData.password.length > 8 && /[A-Z]/.test(formData.password) ? 'good' : ''}`}></span>
+                      <span className={`strength-indicator ${formData.password.length > 8 && /[0-9]/.test(formData.password) && /[A-Z]/.test(formData.password) ? 'good' : ''}`}></span>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Confirm Password</label>
+                    <input
+                      type="password"
+                      required
+                      className="form-input"
+                      placeholder="Confirm your password"
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="two-factor-option">
+                    <label className="checkbox-label">
+                      <input type="checkbox" />
+                      <span className="checkmark"></span>
+                      Enable Two-Factor Authentication (Recommended)
+                    </label>
+                  </div>
+
+                  <div className="step-buttons">
+                    <button type="button" className="back-btn" onClick={() => setStep(1)}>Back</button>
+                    <button type="button" className="next-btn" onClick={() => setStep(3)}>Continue</button>
+                  </div>
+                </div>
+              )}
+
+              {step === 3 && (
+                <div className="form-step">
+                  <h3>Profile Setup</h3>
+                  
+                  <div className="form-group">
+                    <label>Account Type</label>
+                    <div className="user-type-selection">
+                      <div className={`type-option ${formData.userType === 'individual' ? 'selected' : ''}`}
+                           onClick={() => setFormData({...formData, userType: 'individual'})}>
+                        <div className="type-icon">👤</div>
+                        <h4>Individual</h4>
+                        <p>Personal seller account</p>
+                      </div>
+                      <div className={`type-option ${formData.userType === 'shop' ? 'selected' : ''}`}
+                           onClick={() => setFormData({...formData, userType: 'shop'})}>
+                        <div className="type-icon">🏪</div>
+                        <h4>Shop Owner</h4>
+                        <p>Business account with analytics</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {formData.userType === 'shop' && (
+                    <div className="form-group">
+                      <label>Shop Name</label>
+                      <input
+                        type="text"
+                        required
+                        className="form-input"
+                        placeholder="Your shop name"
+                        value={formData.shopName}
+                        onChange={(e) => setFormData({...formData, shopName: e.target.value})}
+                      />
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label>City</label>
+                    <select
+                      required
+                      className="form-input"
+                      value={formData.city}
+                      onChange={(e) => setFormData({...formData, city: e.target.value})}
+                    >
+                      <option value="">Select your city</option>
+                      {cities.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Address (Optional)</label>
+                    <textarea
+                      className="form-input"
+                      rows="2"
+                      placeholder="Your address"
+                      value={formData.address}
+                      onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="step-buttons">
+                    <button type="button" className="back-btn" onClick={() => setStep(2)}>Back</button>
+                    <button type="submit" className="submit-btn" disabled={loading}>
+                      {loading ? 'Creating Account...' : 'Create Account'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </form>
+            
+            <div className="auth-footer">
+              <p>Already have an account? 
+                <button className="link-btn" onClick={() => setCurrentPage('login')}>
+                  Sign in
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <BottomNav />
+      </div>
+    );
+  };
+
+  // Enhanced Home Page
+  const HomePage = () => (
+    <div className="page">
+      <Header showProfile={true} />
+      
+      <div className="content">
+        {!user && <Logo />}
+        
+        {/* Welcome back section for logged in users */}
+        {user && (
+          <div className="welcome-section">
+            <h2>Welcome back, {user.name}! 👋</h2>
+            <p>Find your perfect phone or sell yours today</p>
+          </div>
+        )}
+        
+        <div className="section">
+          <div className="section-header">
+            <h3>Recent Searches</h3>
+            <button className="view-all">View All</button>
+          </div>
+          <div className="search-history">
+            {searchHistory.map((term, index) => (
+              <button 
+                key={index} 
+                className="search-chip"
+                onClick={() => {
+                  setFilters({...filters, search: term});
+                  handleSearch(term);
+                }}
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Saved Searches for logged in users */}
+        {user && savedSearches.length > 0 && (
+          <div className="section">
+            <div className="section-header">
+              <h3>Saved Searches</h3>
+              <button className="view-all" onClick={() => setCurrentPage('savedSearches')}>View All</button>
+            </div>
+            <div className="search-history">
+              {savedSearches.slice(0, 3).map((search) => (
+                <button 
+                  key={search.id} 
+                  className="search-chip saved"
+                  onClick={() => applySavedSearch(search)}
+                >
+                  {search.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="section">
+          <div className="section-header">
+            <h3>Recent Listings</h3>
+            <button className="view-all" onClick={() => setCurrentPage('searchResults')}>View All</button>
+          </div>
+          <div className="phone-grid">
+            {listings.length > 0 ? (
+              listings.slice(0, 4).map(listing => (
+                <PhoneCard key={listing.id} listing={listing} compact={true} />
+              ))
+            ) : (
+              // Sample listings with images for demo
+              [
+                {
+                  id: 'sample1',
+                  brand: 'iPhone',
+                  model: '14 Pro',
+                  price: 285000,
+                  condition: 'Like New',
+                  storage: '256GB',
+                  seller_city: 'Karachi',
+                  seller_name: 'Ahmad Electronics',
+                  seller_type: 'shop',
+                  images: ['https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300'],
+                  pricing_type: 'negotiable'
+                },
+                {
+                  id: 'sample2',
+                  brand: 'Samsung',
+                  model: 'Galaxy S24',
+                  price: 195000,
+                  condition: 'New',
+                  storage: '128GB',
+                  seller_city: 'Lahore',
+                  seller_name: 'Mobile Hub',
+                  seller_type: 'shop',
+                  images: ['https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=300'],
+                  pricing_type: 'fixed'
+                },
+                {
+                  id: 'sample3',
+                  brand: 'Xiaomi',
+                  model: '13 Pro',
+                  price: 89000,
+                  condition: 'Good',
+                  storage: '256GB',
+                  seller_city: 'Islamabad',
+                  seller_name: 'John Doe',
+                  seller_type: 'individual',
+                  images: ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300'],
+                  pricing_type: 'negotiable'
+                },
+                {
+                  id: 'sample4',
+                  brand: 'OnePlus',
+                  model: '11 Pro',
+                  price: 125000,
+                  condition: 'Like New',
+                  storage: '512GB',
+                  seller_city: 'Karachi',
+                  seller_name: 'Tech Point',
+                  seller_type: 'shop',
+                  images: ['https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=300'],
+                  pricing_type: 'fixed'
+                }
+              ].map(listing => (
+                <PhoneCard key={listing.id} listing={listing} compact={true} />
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="section">
+          <div className="section-header">
+            <h3>🏪 Featured Shops</h3>
+            <button className="view-all">View All</button>
+          </div>
+          <div className="featured-shops">
+            <div className="shop-card featured">
+              <div className="shop-image-container">
+                <img 
+                  src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=200&h=150&fit=crop" 
+                  alt="Elite Mobiles Shop"
+                  className="shop-image"
+                />
+                <div className="shop-badge">⭐ Premium</div>
+              </div>
+              <div className="shop-info">
+                <h4 className="shop-name">Elite Mobiles</h4>
+                <p className="shop-location">📍 Clifton, Karachi</p>
+                <div className="shop-stats">
+                  <span className="shop-rating">⭐ 4.8 (245 reviews)</span>
+                  <span className="shop-phones">📱 150+ phones</span>
+                </div>
+                <button className="shop-visit-btn">Visit Shop</button>
+              </div>
+            </div>
+            
+            <div className="shop-card featured">
+              <div className="shop-image-container">
+                <img 
+                  src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=200&h=150&fit=crop" 
+                  alt="Tech Hub Shop"
+                  className="shop-image"
+                />
+                <div className="shop-badge">🔥 Trending</div>
+              </div>
+              <div className="shop-info">
+                <h4 className="shop-name">Tech Hub</h4>
+                <p className="shop-location">📍 DHA, Lahore</p>
+                <div className="shop-stats">
+                  <span className="shop-rating">⭐ 4.6 (189 reviews)</span>
+                  <span className="shop-phones">📱 120+ phones</span>
+                </div>
+                <button className="shop-visit-btn">Visit Shop</button>
+              </div>
+            </div>
+            
+            <div className="shop-card featured">
+              <div className="shop-image-container">
+                <img 
+                  src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=200&h=150&fit=crop" 
+                  alt="Mobile Point Shop"
+                  className="shop-image"
+                />
+                <div className="shop-badge">✨ New</div>
+              </div>
+              <div className="shop-info">
+                <h4 className="shop-name">Mobile Point</h4>
+                <p className="shop-location">📍 F-7, Islamabad</p>
+                <div className="shop-stats">
+                  <span className="shop-rating">⭐ 4.9 (98 reviews)</span>
+                  <span className="shop-phones">📱 85+ phones</span>
+                </div>
+                <button className="shop-visit-btn">Visit Shop</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+
+  // Enhanced Phone Card Component with modern design
+  const PhoneCard = ({ listing, compact = false }) => {
+    const isFavorited = favorites.some(fav => fav.id === listing.id);
+    
+    return (
+      <div 
+        className={`phone-card modern ${compact ? 'compact' : ''}`}
+        onClick={() => {
+          setSelectedListing(listing);
+          setCurrentPage('phoneDetail');
+        }}
+      >
+        <div className="phone-image-container">
+          {listing.images && listing.images.length > 0 ? (
+            <img
+              src={listing.images[0].startsWith('http') ? listing.images[0] : `${BACKEND_URL}${listing.images[0]}`}
+              alt={`${listing.brand} ${listing.model}`}
+              className="phone-image"
+            />
+          ) : (
+            <div className="phone-image-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="#9ca3af">
+                <path d="M17 2H7c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM7 4h10v12H7V4z"/>
+              </svg>
+            </div>
+          )}
+          <button 
+            className="favorite-btn-card"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFavorite(listing.id);
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={isFavorited ? "#ef4444" : "none"} stroke={isFavorited ? "#ef4444" : "#9ca3af"}>
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div className="phone-info">
+          <h4 className="phone-title">{listing.brand} {listing.model}</h4>
+          <p className="phone-storage">{listing.storage}</p>
+          
+          <div className="phone-price-row">
+            <span className="phone-price">
+              Rs {listing.price?.toLocaleString() || '0'}
+            </span>
+            {listing.pricing_type === 'negotiable' && (
+              <span className="negotiable-badge">Nego</span>
+            )}
+          </div>
+          
+          <div className="phone-meta">
+            <span className={`condition-badge ${listing.condition?.toLowerCase().replace(' ', '-')}`}>
+              {listing.condition}
+            </span>
+            <span className="location-badge">📍 {listing.seller_city}</span>
+          </div>
+          
+          <div className="seller-info-card">
+            <div className="seller-avatar-small">
+              {listing.seller_type === 'shop' ? '🏪' : '👤'}
+            </div>
+            <div className="seller-details">
+              <span className="seller-name">{listing.seller_type === 'shop' ? listing.shop_name : listing.seller_name}</span>
+              <span className="seller-type-badge">{listing.seller_type === 'shop' ? 'Shop' : 'Individual'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Enhanced Phone Detail Page
+  const PhoneDetailPage = () => {
+    const [showReviewForm, setShowReviewForm] = useState(false);
+    const [reviewData, setReviewData] = useState({ rating: 5, comment: '' });
+    const [showMessageForm, setShowMessageForm] = useState(false);
+    const [messageData, setMessageData] = useState({ content: '', offerAmount: '' });
+
+    if (!selectedListing) return <HomePage />;
+
+    const isFavorited = favorites.some(fav => fav.id === selectedListing.id);
+
+    const handleSendMessage = (e) => {
+      e.preventDefault();
+      sendMessage(
+        selectedListing.seller_id, 
+        selectedListing.id, 
+        messageData.content,
+        messageData.offerAmount ? 'offer' : 'text',
+        messageData.offerAmount ? parseInt(messageData.offerAmount) : null
+      );
+      setMessageData({ content: '', offerAmount: '' });
+      setShowMessageForm(false);
+      showToast('Message sent successfully', 'success');
+    };
+
+    const handleSubmitReview = (e) => {
+      e.preventDefault();
+      submitReview(
+        selectedListing.seller_id,
+        selectedListing.id,
+        reviewData.rating,
+        reviewData.comment
+      );
+      setReviewData({ rating: 5, comment: '' });
+      setShowReviewForm(false);
+    };
+
+    useEffect(() => {
+      if (selectedListing) {
+        loadUserReviews(selectedListing.seller_id);
+      }
+    }, [selectedListing]);
+
+    return (
+      <div className="page">
+        <Header title="Phone Details" showBack={true} showSearch={false} />
+        
+        <div className="content">
+          <div className="phone-detail">
+            <div className="phone-images">
+              {selectedListing.images.length > 0 ? (
+                <img
+                  src={`${BACKEND_URL}${selectedListing.images[0]}`}
+                  alt={`${selectedListing.brand} ${selectedListing.model}`}
+                  className="detail-image"
+                />
+              ) : (
+                <div className="detail-image-placeholder">📱</div>
+              )}
+              
+              {selectedListing.images.length > 1 && (
+                <div className="image-gallery">
+                  {selectedListing.images.map((image, index) => (
+                    <img
+                      key={index}
+                      src={`${BACKEND_URL}${image}`}
+                      alt={`${selectedListing.brand} ${selectedListing.model} ${index + 1}`}
+                      className="gallery-image"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="phone-details-info">
+              <div className="detail-header">
+                <h2>{selectedListing.brand} {selectedListing.model}</h2>
+                <button 
+                  className="favorite-btn-large"
+                  onClick={() => toggleFavorite(selectedListing.id)}
+                >
+                  {isFavorited ? '💙' : '🤍'}
+                </button>
+              </div>
+
+              <div className="detail-specs">
+                <div className="spec-item">
+                  <span className="spec-label">Storage:</span>
+                  <span className="spec-value">{selectedListing.storage}</span>
+                </div>
+                <div className="spec-item">
+                  <span className="spec-label">Condition:</span>
+                  <span className={`spec-value condition-${selectedListing.condition.toLowerCase().replace(' ', '-')}`}>
+                    {selectedListing.condition}
+                  </span>
+                </div>
+                <div className="spec-item">
+                  <span className="spec-label">Price:</span>
+                  <span className="spec-price">
+                    Rs {selectedListing.price.toLocaleString()}
+                    {selectedListing.pricing_type === 'negotiable' && <span className="negotiable-text"> (Negotiable)</span>}
+                  </span>
+                </div>
+                <div className="spec-item">
+                  <span className="spec-label">Views:</span>
+                  <span className="spec-value">{selectedListing.views_count}</span>
+                </div>
+                {selectedListing.warranty_info && (
+                  <div className="spec-item">
+                    <span className="spec-label">Warranty:</span>
+                    <span className="spec-value">{selectedListing.warranty_info}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="detail-description">
+                <h4>Description</h4>
+                <p>{selectedListing.description}</p>
+              </div>
+
+              {selectedListing.specifications && Object.keys(selectedListing.specifications).length > 0 && (
+                <div className="detail-specifications">
+                  <h4>Specifications</h4>
+                  <div className="specs-grid">
+                    {Object.entries(selectedListing.specifications).map(([key, value]) => (
+                      <div key={key} className="spec-item">
+                        <span className="spec-label">{key}:</span>
+                        <span className="spec-value">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="seller-details">
+                <h4>Seller Information</h4>
+                <div className="seller-card">
+                  <div className="seller-info">
+                    <div className="seller-avatar">
+                      {selectedListing.seller_profile_picture ? (
+                        <img src={`${BACKEND_URL}${selectedListing.seller_profile_picture}`} alt="Seller" />
+                      ) : (
+                        selectedListing.seller_type === 'shop' ? '🏪' : '👤'
+                      )}
+                    </div>
+                    <div className="seller-text">
+                      <h5>{selectedListing.seller_type === 'shop' ? selectedListing.shop_name : selectedListing.seller_name}</h5>
+                      <p>📍 {selectedListing.seller_city}</p>
+                      <p className="seller-type">{selectedListing.seller_type === 'shop' ? 'Shop Owner' : 'Individual Seller'}</p>
+                      {selectedListing.seller_rating > 0 && (
+                        <div className="seller-rating">
+                          ⭐ {selectedListing.seller_rating.toFixed(1)} ({selectedListing.total_reviews} reviews)
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="seller-actions">
+                    <a
+                      href={`tel:${selectedListing.seller_phone}`}
+                      className="contact-seller-btn call"
+                    >
+                      📞 Call Now
+                    </a>
+                    
+                    {user && user.id !== selectedListing.seller_id && (
+                      <button
+                        className="contact-seller-btn message"
+                        onClick={() => setShowMessageForm(true)}
+                      >
+                        💬 Send Message
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Reviews Section */}
+              {reviews.length > 0 && (
+                <div className="reviews-section">
+                  <h4>Reviews ({reviews.length})</h4>
+                  <div className="reviews-list">
+                    {reviews.slice(0, 3).map(review => (
+                      <div key={review.id} className="review-item">
+                        <div className="review-header">
+                          <span className="reviewer-name">{review.reviewer_name}</span>
+                          <div className="review-rating">
+                            {'⭐'.repeat(review.rating)}
+                          </div>
+                        </div>
+                        <p className="review-comment">{review.comment}</p>
+                        <span className="review-date">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {user && user.id !== selectedListing.seller_id && (
+                    <button
+                      className="write-review-btn"
+                      onClick={() => setShowReviewForm(true)}
+                    >
+                      Write a Review
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Message Form Modal */}
+          {showMessageForm && (
+            <div className="modal-overlay" onClick={() => setShowMessageForm(false)}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <form onSubmit={handleSendMessage}>
+                  <h3>Send Message</h3>
+                  <textarea
+                    placeholder="Write your message..."
+                    value={messageData.content}
+                    onChange={(e) => setMessageData({...messageData, content: e.target.value})}
+                    required
+                    rows="4"
+                    className="form-input"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Offer amount (optional)"
+                    value={messageData.offerAmount}
+                    onChange={(e) => setMessageData({...messageData, offerAmount: e.target.value})}
+                    className="form-input"
+                  />
+                  <div className="modal-actions">
+                    <button type="button" onClick={() => setShowMessageForm(false)} className="cancel-btn">
+                      Cancel
+                    </button>
+                    <button type="submit" className="submit-btn">
+                      Send Message
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Review Form Modal */}
+          {showReviewForm && (
+            <div className="modal-overlay" onClick={() => setShowReviewForm(false)}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <form onSubmit={handleSubmitReview}>
+                  <h3>Write a Review</h3>
+                  <div className="rating-input">
+                    <label>Rating:</label>
+                    <div className="stars">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <button
+                          key={star}
+                          type="button"
+                          className={`star ${star <= reviewData.rating ? 'active' : ''}`}
+                          onClick={() => setReviewData({...reviewData, rating: star})}
+                        >
+                          ⭐
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <textarea
+                    placeholder="Write your review..."
+                    value={reviewData.comment}
+                    onChange={(e) => setReviewData({...reviewData, comment: e.target.value})}
+                    required
+                    rows="4"
+                    className="form-input"
+                  />
+                  <div className="modal-actions">
+                    <button type="button" onClick={() => setShowReviewForm(false)} className="cancel-btn">
+                      Cancel
+                    </button>
+                    <button type="submit" className="submit-btn">
+                      Submit Review
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <BottomNav />
+      </div>
+    );
+  };
+
+  // Messages Page
+  const MessagesPage = () => (
+    <div className="page">
+      <Header title="Messages" showBack={true} showSearch={false} />
+      
+      <div className="content">
+        {conversations.length > 0 ? (
+          <div className="conversations-list">
+            {conversations.map(conversation => (
+              <div 
+                key={conversation.id} 
+                className="conversation-item"
+                onClick={() => {
+                  setSelectedConversation(conversation);
+                  setCurrentPage('chat');
+                  loadMessages(conversation.id);
+                }}
+              >
+                <div className="conversation-avatar">
+                  {conversation.other_user_profile_picture ? (
+                    <img src={`${BACKEND_URL}${conversation.other_user_profile_picture}`} alt="User" />
+                  ) : (
+                    '👤'
+                  )}
+                </div>
+                <div className="conversation-info">
+                  <h4>{conversation.other_user_name}</h4>
+                  <p className="listing-title">{conversation.listing_title}</p>
+                  {conversation.last_message && (
+                    <p className="last-message">{conversation.last_message}</p>
+                  )}
+                  {conversation.last_message_at && (
+                    <span className="message-time">
+                      {new Date(conversation.last_message_at).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+                {conversation.unread_count > 0 && (
+                  <div className="unread-badge">{conversation.unread_count}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <div className="empty-icon">💬</div>
+            <h3>No Messages Yet</h3>
+            <p>Start browsing phones and contact sellers to begin conversations</p>
+            <button className="browse-btn" onClick={() => setCurrentPage('home')}>
+              Browse Phones
+            </button>
+          </div>
+        )}
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+
+  // Chat Page
+  const ChatPage = () => {
+    const [newMessage, setNewMessage] = useState('');
+    const [offerAmount, setOfferAmount] = useState('');
+    const messagesEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+      scrollToBottom();
+    }, [messages]);
+
+    const handleSendMessage = (e) => {
+      e.preventDefault();
+      if (newMessage.trim() || offerAmount) {
+        sendMessage(
+          selectedConversation.other_user_id,
+          selectedConversation.listing_id,
+          newMessage || `Offer: Rs ${parseInt(offerAmount).toLocaleString()}`,
+          offerAmount ? 'offer' : 'text',
+          offerAmount ? parseInt(offerAmount) : null
+        );
+        setNewMessage('');
+        setOfferAmount('');
+      }
+    };
+
+    if (!selectedConversation) return <MessagesPage />;
+
+    return (
+      <div className="page chat-page">
+        <Header title={selectedConversation.other_user_name} showBack={true} showSearch={false} />
+        
+        <div className="chat-content">
+          <div className="listing-info-banner">
+            <div className="listing-preview">
+              {selectedConversation.listing_image && (
+                <img src={`${BACKEND_URL}${selectedConversation.listing_image}`} alt="Listing" />
+              )}
+              <span>{selectedConversation.listing_title}</span>
+            </div>
+          </div>
+
+          <div className="messages-container">
+            {messages.map(message => (
+              <div 
+                key={message.id} 
+                className={`message ${message.sender_id === user.id ? 'sent' : 'received'}`}
+              >
+                <div className="message-content">
+                  {message.message_type === 'offer' && (
+                    <div className="offer-message">
+                      <span className="offer-label">💰 Offer</span>
+                    </div>
+                  )}
+                  <p>{message.content}</p>
+                  <span className="message-time">
+                    {new Date(message.created_at).toLocaleTimeString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <form onSubmit={handleSendMessage} className="message-input-form">
+            <div className="input-row">
+              <input
+                type="text"
+                placeholder="Type a message..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                className="message-input"
+              />
+              <input
+                type="number"
+                placeholder="Offer amount"
+                value={offerAmount}
+                onChange={(e) => setOfferAmount(e.target.value)}
+                className="offer-input"
+              />
+              <button type="submit" className="send-btn" disabled={!newMessage.trim() && !offerAmount}>
+                ➤
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <BottomNav />
+      </div>
+    );
+  };
+
+  // Complete Modern Search Results Page
+  const SearchResultsPage = () => (
+    <div className="page">
+      <Header title="Search Results" showBack={true} showSearch={false} />
+      
+      <div className="content">
+        <div className="search-header">
+          <div className="search-summary">
+            <h3>{listings.length} phones found</h3>
+            <p>Showing results for "{filters.search || 'all phones'}"</p>
+          </div>
+          <button className="filter-toggle" onClick={() => setCurrentPage('advancedSearch')}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+            </svg>
+            Filters
+          </button>
+        </div>
+
+        <div className="sort-options">
+          <button className={`sort-chip ${filters.sortBy === 'recent' ? 'active' : ''}`} 
+                  onClick={() => setFilters({...filters, sortBy: 'recent'})}>
+            Latest
+          </button>
+          <button className={`sort-chip ${filters.sortBy === 'price_low' ? 'active' : ''}`} 
+                  onClick={() => setFilters({...filters, sortBy: 'price_low'})}>
+            Price: Low to High
+          </button>
+          <button className={`sort-chip ${filters.sortBy === 'price_high' ? 'active' : ''}`} 
+                  onClick={() => setFilters({...filters, sortBy: 'price_high'})}>
+            Price: High to Low
+          </button>
+          <button className={`sort-chip ${filters.sortBy === 'popular' ? 'active' : ''}`} 
+                  onClick={() => setFilters({...filters, sortBy: 'popular'})}>
+            Most Popular
+          </button>
+        </div>
+        
+        <div className="results-grid">
+          {listings.length > 0 ? (
+            listings.map(listing => (
+              <PhoneCard key={listing.id} listing={listing} />
+            ))
+          ) : (
+            <div className="empty-search">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="#9ca3af">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+              </svg>
+              <h3>No phones found</h3>
+              <p>Try adjusting your search or filters</p>
+              <button className="clear-filters-btn" onClick={() => setFilters({brand: '', city: '', condition: '', search: '', minPrice: '', maxPrice: '', sortBy: 'recent'})}>
+                Clear All Filters
+              </button>
+            </div>
+          )}
+        </div>
+
+        {hasMoreListings && (
+          <button className="load-more-btn" onClick={loadMoreListings} disabled={loading}>
+            {loading ? 'Loading...' : 'Load More Phones'}
+          </button>
+        )}
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+
+  // Modern Categories Page
+  const CategoriesPage = () => (
+    <div className="page">
+      <Header title="Categories" showBack={true} showSearch={false} />
+      
+      <div className="content">
+        <div className="categories-hero">
+          <h2>Browse by Category</h2>
+          <p>Find exactly what you're looking for</p>
+        </div>
+
+        <div className="categories-grid">
+          <div className="category-card" onClick={() => {setFilters({...filters, brand: 'Apple'}); setCurrentPage('searchResults');}}>
+            <div className="category-icon apple">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+              </svg>
+            </div>
+            <h3>iPhone</h3>
+            <p>Latest Apple devices</p>
+            <span className="category-count">1,250+ phones</span>
+          </div>
+
+          <div className="category-card" onClick={() => {setFilters({...filters, brand: 'Samsung'}); setCurrentPage('searchResults');}}>
+            <div className="category-icon samsung">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17 2H7c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H7V6h10v10z"/>
+              </svg>
+            </div>
+            <h3>Samsung</h3>
+            <p>Galaxy series & more</p>
+            <span className="category-count">980+ phones</span>
+          </div>
+
+          <div className="category-card" onClick={() => {setFilters({...filters, brand: 'Xiaomi'}); setCurrentPage('searchResults');}}>
+            <div className="category-icon xiaomi">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+            </div>
+            <h3>Xiaomi</h3>
+            <p>Redmi & POCO series</p>
+            <span className="category-count">750+ phones</span>
+          </div>
+
+          <div className="category-card" onClick={() => {setFilters({...filters, condition: 'New'}); setCurrentPage('searchResults');}}>
+            <div className="category-icon new-phones">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
+            <h3>Brand New</h3>
+            <p>Unused devices</p>
+            <span className="category-count">450+ phones</span>
+          </div>
+
+          <div className="category-card" onClick={() => {setFilters({...filters, condition: 'Like New'}); setCurrentPage('searchResults');}}>
+            <div className="category-icon like-new">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3>Like New</h3>
+            <p>Excellent condition</p>
+            <span className="category-count">680+ phones</span>
+          </div>
+
+          <div className="category-card" onClick={() => {setFilters({...filters, city: 'Karachi'}); setCurrentPage('searchResults');}}>
+            <div className="category-icon location">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+            </div>
+            <h3>In Karachi</h3>
+            <p>Local phones</p>
+            <span className="category-count">890+ phones</span>
+          </div>
+        </div>
+
+        <div className="quick-filters">
+          <h3>Quick Filters</h3>
+          <div className="quick-filter-chips">
+            <button className="quick-chip" onClick={() => {setFilters({...filters, maxPrice: 50000}); setCurrentPage('searchResults');}}>
+              Under Rs 50K
+            </button>
+            <button className="quick-chip" onClick={() => {setFilters({...filters, minPrice: 100000, maxPrice: 200000}); setCurrentPage('searchResults');}}>
+              Rs 1L - 2L
+            </button>
+            <button className="quick-chip" onClick={() => {setFilters({...filters, minPrice: 200000}); setCurrentPage('searchResults');}}>
+              Above Rs 2L
+            </button>
+            <button className="quick-chip" onClick={() => {setFilters({...filters, storage: '256GB'}); setCurrentPage('searchResults');}}>
+              256GB Storage
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+
+  // Continue with remaining components...
+  // I'll add the rest in the next part due to length constraints
+
+  // Render current page
+  const renderPage = () => {
+    switch(currentPage) {
+      case 'home': return <HomePage />;
+      case 'authSelection': return <AuthSelectionPage />;
+      case 'login': return <LoginPage />;
+      case 'register': return <RegistrationForm />;
+      case 'phoneDetail': return <PhoneDetailPage />;
+      case 'messages': return <MessagesPage />;
+      case 'chat': return <ChatPage />;
+      case 'searchResults': return <SearchResultsPage />;
+      case 'categories': return <CategoriesPage />;
+      default: return <HomePage />;
+    }
+  };
+
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+    <div className="app">
+      {renderPage()}
+      
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`toast ${toast.type}`}>
+          {toast.message}
+        </div>
+      )}
+      
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
     </div>
   );
 }
