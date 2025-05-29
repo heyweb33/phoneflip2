@@ -24,7 +24,12 @@ function App() {
     sortBy: 'recent'
   });
   const [selectedListing, setSelectedListing] = useState(null);
-  const [searchHistory, setSearchHistory] = useState(['iPhone 13', 'Samsung S24', 'Xiaomi Note']);
+  const [searchHistory, setSearchHistory] = useState([
+    'iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra', 'Xiaomi 14 Pro', 
+    'OnePlus 12', 'Google Pixel 8', 'iPhone 14', 'Samsung S23', 
+    'Redmi Note 13', 'Realme GT 6', 'Vivo V30', 'Oppo Reno 11',
+    'Nothing Phone 2', 'Huawei P60', 'Sony Xperia 1 V'
+  ]);
   const [favorites, setFavorites] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
