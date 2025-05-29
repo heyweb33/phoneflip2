@@ -2034,3 +2034,34 @@ body {
     display: none;
   }
 }
+
+/* Modern Logo Text Styles */
+.logo-text-modern {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 12px 0 0;
+  line-height: 1;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(135deg, #1e40af 0%, #0f766e 45%, #374151 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1.5px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga' 1, 'kern' 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.logo-tagline-modern {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin: 6px 0 0;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: 1px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  opacity: 0.9;
+  text-align: center;
+}
