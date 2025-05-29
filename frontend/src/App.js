@@ -93,12 +93,59 @@ function App() {
       postedDate: "4 days ago"
     }
   ]);
-  const [searchHistory, setSearchHistory] = useState([
-    'iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra', 'Xiaomi 14 Pro', 
-    'OnePlus 12', 'Google Pixel 8', 'iPhone 14', 'Samsung S23', 
-    'Redmi Note 13', 'Realme GT 6', 'Vivo V30', 'Oppo Reno 11',
-    'Nothing Phone 2', 'Huawei P60', 'Sony Xperia 1 V'
-  ]);
+  // Enhanced search functionality with suggestions
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Popular phone models for suggestions
+  const phoneModels = [
+    'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15', 'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14', 'iPhone 13 Pro Max', 'iPhone 13 Pro', 'iPhone 13',
+    'Samsung Galaxy S24 Ultra', 'Samsung Galaxy S24+', 'Samsung Galaxy S24', 'Samsung Galaxy S23 Ultra', 'Samsung Galaxy S23+', 'Samsung Galaxy S23',
+    'Samsung Galaxy Note 20 Ultra', 'Samsung Galaxy A54', 'Samsung Galaxy A34', 'Samsung Galaxy A14',
+    'Google Pixel 8 Pro', 'Google Pixel 8', 'Google Pixel 7 Pro', 'Google Pixel 7', 'Google Pixel 6 Pro',
+    'OnePlus 12', 'OnePlus 11', 'OnePlus 10 Pro', 'OnePlus Nord 3', 'OnePlus Nord CE 3',
+    'Xiaomi 14 Pro', 'Xiaomi 14', 'Xiaomi 13 Pro', 'Xiaomi Redmi Note 13 Pro', 'Xiaomi Redmi Note 13', 'Xiaomi Redmi Note 12 Pro',
+    'Nothing Phone (2)', 'Nothing Phone (1)', 'Realme GT 6', 'Realme 12 Pro+', 'Vivo V30 Pro', 'Vivo V30', 'Oppo Reno 11 Pro', 'Oppo Reno 11'
+  ];
+
+  // Handle search input with suggestions
+  const handleSearchInput = (value) => {
+    setSearchQuery(value);
+    setFilters({...filters, search: value});
+    
+    if (value.length > 0) {
+      const suggestions = phoneModels.filter(model => 
+        model.toLowerCase().includes(value.toLowerCase())
+      ).slice(0, 6);
+      setSearchSuggestions(suggestions);
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  // Handle suggestion selection
+  const selectSuggestion = (suggestion) => {
+    setSearchQuery(suggestion);
+    setFilters({...filters, search: suggestion});
+    setShowSuggestions(false);
+    performSearch(suggestion);
+  };
+
+  // Enhanced search function
+  const performSearch = (query = searchQuery) => {
+    if (!query.trim()) return;
+    
+    // Add to search history
+    if (!searchHistory.includes(query)) {
+      setSearchHistory([query, ...searchHistory.slice(0, 9)]);
+    }
+    
+    setCurrentPage('searchResults');
+    setShowSuggestions(false);
+    loadListings({search: query});
+  };
   const [favorites, setFavorites] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
