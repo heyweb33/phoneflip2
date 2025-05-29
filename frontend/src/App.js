@@ -591,7 +591,7 @@ function App() {
               <span className="trending-label">Trending:</span>
               <button className="tag-pill">iPhone 15 Pro</button>
               <button className="tag-pill">Galaxy S24</button>
-              <button className="tag-pill">Under ₹50k</button>
+              <button className="tag-pill">Under 50k PKR</button>
             </div>
           </div>
         )}
