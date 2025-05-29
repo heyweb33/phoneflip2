@@ -196,8 +196,15 @@ body {
   
   /* Remove white background professionally */
   background: transparent;
-  /* For logos with white backgrounds, try to remove them */
-  filter: contrast(1.1) brightness(1.05);
+  
+  /* Advanced white background removal technique */
+  filter: 
+    contrast(1.1) 
+    brightness(1.05)
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    
+  /* Alternative approach for logos with white backgrounds */
+  /* mix-blend-mode: multiply; - Use this if the logo still has white bg */
   
   /* Professional shadow for branding */
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
