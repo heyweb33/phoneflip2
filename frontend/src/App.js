@@ -97,6 +97,12 @@ function App() {
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchHistory, setSearchHistory] = useState([
+    'iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra', 'Xiaomi 14 Pro', 
+    'OnePlus 12', 'Google Pixel 8', 'iPhone 14', 'Samsung S23', 
+    'Redmi Note 13', 'Realme GT 6', 'Vivo V30', 'Oppo Reno 11',
+    'Nothing Phone 2', 'Huawei P60', 'Sony Xperia 1 V'
+  ]);
 
   // Popular phone models for suggestions
   const phoneModels = [
