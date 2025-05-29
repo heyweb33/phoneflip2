@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PhoneDetailPage from './components/PhoneDetailPage';
+import ShopPage from './components/ShopPage';
 import './App.css';
 import axios from 'axios';
 
@@ -9,6 +11,8 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [selectedPhone, setSelectedPhone] = useState(null);
+  const [selectedShop, setSelectedShop] = useState(null);
   const [listings, setListings] = useState([]);
   const [cities, setCities] = useState([]);
   const [phoneBrands, setPhoneBrands] = useState({});
