@@ -72,15 +72,19 @@ body {
 }
 
 .header-logo:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .header-logo-img {
-  height: 40px;
+  height: 32px;
   width: auto;
-  max-width: 150px;
+  max-width: 120px;
   object-fit: contain;
-  filter: brightness(1.1) contrast(1.1);
+  /* Remove white background and improve visibility */
+  filter: brightness(1.2) contrast(1.1);
+  background: transparent;
+  /* Handle potential white background */
+  mix-blend-mode: screen;
 }
 
 .header-title {
