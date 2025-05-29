@@ -490,44 +490,38 @@ function App() {
           
           {showLogo ? (
             <div className="logo-brand-showcase" onClick={() => setCurrentPage('home')}>
-              {/* Custom PhoneFlip Logo */}
+              {/* Custom PhoneFlip Logo - Inspired by Clean Modern Design */}
               <div className="phoneflip-logo">
                 <div className="logo-icon-container">
-                  <svg className="phoneflip-icon" width="52" height="52" viewBox="0 0 80 80" fill="none">
-                    {/* Background Circle */}
-                    <circle cx="40" cy="40" r="38" fill="url(#logoGradient)" stroke="url(#borderGradient)" strokeWidth="2"/>
+                  <svg className="phoneflip-icon" width="56" height="56" viewBox="0 0 100 100" fill="none">
+                    {/* Modern Rounded Background */}
+                    <rect x="8" y="8" width="84" height="84" rx="28" fill="url(#modernGradient)" stroke="none"/>
                     
-                    {/* Phone 1 (Left) */}
-                    <rect x="20" y="28" width="12" height="20" rx="2" fill="white" stroke="none"/>
-                    <rect x="21.5" y="30" width="9" height="14" rx="1" fill="#1e40af"/>
-                    <circle cx="26" cy="46" r="1" fill="white"/>
+                    {/* Phone Device */}
+                    <rect x="42" y="25" width="16" height="28" rx="3" fill="white" stroke="none"/>
+                    <rect x="44" y="28" width="12" height="20" rx="1.5" fill="#1e40af" opacity="0.1"/>
                     
-                    {/* Phone 2 (Right) */}
-                    <rect x="48" y="32" width="12" height="20" rx="2" fill="white" stroke="none"/>
-                    <rect x="49.5" y="34" width="9" height="14" rx="1" fill="#059669"/>
-                    <circle cx="54" cy="50" r="1" fill="white"/>
+                    {/* Screen Details */}
+                    <rect x="46" y="30" width="8" height="0.8" rx="0.4" fill="white"/>
+                    <circle cx="50" cy="52" r="1.2" fill="white"/>
                     
-                    {/* Flip Arrow */}
-                    <path d="M34 35 Q40 30 46 35" stroke="#f59e0b" strokeWidth="3" fill="none" strokeLinecap="round"/>
-                    <path d="M44 33 L46 35 L44 37" stroke="#f59e0b" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+                    {/* Modern Flip Arrows - Clean Curved Design */}
+                    <path d="M28 42 C28 36, 32 32, 38 32" stroke="white" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
+                    <path d="M35 29 L38 32 L35 35" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
                     
-                    {/* Reverse Arrow */}
-                    <path d="M46 45 Q40 50 34 45" stroke="#f59e0b" strokeWidth="3" fill="none" strokeLinecap="round"/>
-                    <path d="M36 43 L34 45 L36 47" stroke="#f59e0b" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+                    <path d="M72 58 C72 64, 68 68, 62 68" stroke="white" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
+                    <path d="M65 71 L62 68 L65 65" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
                     
-                    {/* Accent Elements */}
-                    <circle cx="38" cy="25" r="2" fill="#f59e0b" opacity="0.6"/>
-                    <circle cx="42" cy="55" r="2" fill="#1e40af" opacity="0.4"/>
+                    {/* Subtle Accent Elements */}
+                    <circle cx="32" cy="32" r="1.5" fill="white" opacity="0.4"/>
+                    <circle cx="68" cy="68" r="1.5" fill="white" opacity="0.4"/>
                     
                     <defs>
-                      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <linearGradient id="modernGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="#1e40af"/>
-                        <stop offset="50%" stopColor="#3b82f6"/>
-                        <stop offset="100%" stopColor="#6366f1"/>
-                      </linearGradient>
-                      <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#60a5fa"/>
-                        <stop offset="100%" stopColor="#a78bfa"/>
+                        <stop offset="30%" stopColor="#3b82f6"/>
+                        <stop offset="70%" stopColor="#6366f1"/>
+                        <stop offset="100%" stopColor="#8b5cf6"/>
                       </linearGradient>
                     </defs>
                   </svg>
@@ -536,8 +530,8 @@ function App() {
                 </div>
                 
                 <div className="brand-identity">
-                  <h1 className="brand-title">PhoneFlip</h1>
-                  <p className="brand-subtitle">Smart Trading</p>
+                  <h1 className="brand-title-sleek">PhoneFlip</h1>
+                  <p className="brand-tagline-new">Your next phone just a flip away</p>
                 </div>
               </div>
             </div>
