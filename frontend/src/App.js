@@ -475,18 +475,13 @@ function App() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Enhanced Header Component with Custom Logo Design
+  // Modern Header with Stunning Custom PhoneFlip Logo
   const Header = ({ title = "", showBack = false, showSearch = true, showProfile = false, showLogo = false }) => (
-    <div className="header-premium">
-      <div className="header-bg-premium">
-        <div className="bg-mesh"></div>
-        <div className="bg-orbs"></div>
-      </div>
-      
-      <div className="header-content-premium">
-        <div className="header-nav-premium">
+    <div className="header-stunning">
+      <div className="header-content-stunning">
+        <div className="header-top">
           {showBack && (
-            <button onClick={() => setCurrentPage('home')} className="nav-btn-premium back">
+            <button onClick={() => setCurrentPage('home')} className="btn-modern back">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
               </svg>
@@ -494,96 +489,115 @@ function App() {
           )}
           
           {showLogo ? (
-            <div className="logo-showcase" onClick={() => setCurrentPage('home')}>
-              <div className="logo-container-premium">
-                <svg className="logo-svg" width="48" height="48" viewBox="0 0 60 60" fill="none">
-                  {/* Phone Body */}
-                  <rect x="22" y="12" width="16" height="26" rx="3" fill="white" stroke="none"/>
-                  <rect x="24" y="15" width="12" height="18" rx="1" fill="#1e40af"/>
+            <div className="logo-brand-showcase" onClick={() => setCurrentPage('home')}>
+              {/* Custom PhoneFlip Logo */}
+              <div className="phoneflip-logo">
+                <div className="logo-icon-container">
+                  <svg className="phoneflip-icon" width="52" height="52" viewBox="0 0 80 80" fill="none">
+                    {/* Background Circle */}
+                    <circle cx="40" cy="40" r="38" fill="url(#logoGradient)" stroke="url(#borderGradient)" strokeWidth="2"/>
+                    
+                    {/* Phone 1 (Left) */}
+                    <rect x="20" y="28" width="12" height="20" rx="2" fill="white" stroke="none"/>
+                    <rect x="21.5" y="30" width="9" height="14" rx="1" fill="#1e40af"/>
+                    <circle cx="26" cy="46" r="1" fill="white"/>
+                    
+                    {/* Phone 2 (Right) */}
+                    <rect x="48" y="32" width="12" height="20" rx="2" fill="white" stroke="none"/>
+                    <rect x="49.5" y="34" width="9" height="14" rx="1" fill="#059669"/>
+                    <circle cx="54" cy="50" r="1" fill="white"/>
+                    
+                    {/* Flip Arrow */}
+                    <path d="M34 35 Q40 30 46 35" stroke="#f59e0b" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                    <path d="M44 33 L46 35 L44 37" stroke="#f59e0b" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+                    
+                    {/* Reverse Arrow */}
+                    <path d="M46 45 Q40 50 34 45" stroke="#f59e0b" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                    <path d="M36 43 L34 45 L36 47" stroke="#f59e0b" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+                    
+                    {/* Accent Elements */}
+                    <circle cx="38" cy="25" r="2" fill="#f59e0b" opacity="0.6"/>
+                    <circle cx="42" cy="55" r="2" fill="#1e40af" opacity="0.4"/>
+                    
+                    <defs>
+                      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#1e40af"/>
+                        <stop offset="50%" stopColor="#3b82f6"/>
+                        <stop offset="100%" stopColor="#6366f1"/>
+                      </linearGradient>
+                      <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#60a5fa"/>
+                        <stop offset="100%" stopColor="#a78bfa"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
                   
-                  {/* Phone Details */}
-                  <circle cx="30" cy="36" r="1.5" fill="white"/>
-                  <rect x="26" y="13.5" width="8" height="1" rx="0.5" fill="white"/>
-                  
-                  {/* Flip Arrows */}
-                  <path d="M12 25 C12 20, 16 16, 22 16" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                  <path d="M16 14 L22 16 L16 18" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                  
-                  <path d="M48 35 C48 40, 44 44, 38 44" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                  <path d="M44 46 L38 44 L44 42" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                  
-                  {/* Accent Dots */}
-                  <circle cx="15" cy="15" r="2" fill="rgba(255,255,255,0.3)"/>
-                  <circle cx="45" cy="45" r="2" fill="rgba(255,255,255,0.3)"/>
-                  <circle cx="8" cy="30" r="1.5" fill="rgba(255,255,255,0.2)"/>
-                  <circle cx="52" cy="30" r="1.5" fill="rgba(255,255,255,0.2)"/>
-                </svg>
+                  <div className="logo-shine"></div>
+                </div>
                 
-                <div className="logo-pulse"></div>
-              </div>
-              
-              <div className="brand-text-premium">
-                <h1 className="brand-name">PhoneFlip</h1>
-                <p className="brand-tagline">Trade Smart</p>
+                <div className="brand-identity">
+                  <h1 className="brand-title">PhoneFlip</h1>
+                  <p className="brand-subtitle">Smart Trading</p>
+                </div>
               </div>
             </div>
           ) : (
-            <div className="header-title-premium">
+            <div className="page-title-modern">
               <h1>{title || "PhoneFlip"}</h1>
             </div>
           )}
           
-          <div className="header-actions-premium">
+          <div className="header-actions-modern">
             {showProfile && user && (
-              <button onClick={() => setCurrentPage('profile')} className="nav-btn-premium profile">
-                <div className="profile-avatar-premium">
+              <button onClick={() => setCurrentPage('profile')} className="btn-modern profile">
+                <div className="profile-pic">
                   {user.profile_picture ? (
                     <img src={user.profile_picture} alt={user.name} />
                   ) : (
-                    <span>{user.name.charAt(0).toUpperCase()}</span>
+                    <div className="profile-initial">{user.name.charAt(0).toUpperCase()}</div>
                   )}
                 </div>
-                <div className="status-dot"></div>
+                <div className="active-dot"></div>
               </button>
             )}
             
             {!showProfile && !showBack && (
-              <div className="nav-spacer"></div>
+              <div className="spacer-modern"></div>
             )}
           </div>
         </div>
         
-        {/* Premium Search Experience */}
+        {/* Modern Search Section */}
         {showSearch && currentPage === 'home' && (
-          <div className="search-experience">
-            <div className="search-bar-premium">
-              <div className="search-icon-premium">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <div className="search-section-modern">
+            <div className="search-container-stunning">
+              <div className="search-icon-modern">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                 </svg>
               </div>
               
               <input
                 type="text"
-                placeholder="Find your perfect phone..."
-                className="search-input-premium"
+                placeholder="Search phones, brands, models..."
+                className="search-input-stunning"
                 value={filters.search}
                 onChange={(e) => setFilters({...filters, search: e.target.value})}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
               
-              <button onClick={() => handleSearch()} className="search-submit-premium">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>
+              <button onClick={() => handleSearch()} className="search-action-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 1 1 9.5 3z"/>
                 </svg>
               </button>
             </div>
             
-            <div className="quick-searches">
-              <span className="quick-label">Popular:</span>
-              <button className="quick-tag">iPhone 15</button>
-              <button className="quick-tag">Galaxy S24</button>
-              <button className="quick-tag">Under ₹50k</button>
+            <div className="trending-tags">
+              <span className="trending-label">Trending:</span>
+              <button className="tag-pill">iPhone 15 Pro</button>
+              <button className="tag-pill">Galaxy S24</button>
+              <button className="tag-pill">Under ₹50k</button>
             </div>
           </div>
         )}
