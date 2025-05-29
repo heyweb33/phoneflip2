@@ -224,32 +224,71 @@ body {
 }
 
 .brand-title-sleek {
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 22px;
+  font-weight: 600;
   margin: 0;
   line-height: 1;
-  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  background: linear-gradient(135deg, #1e40af 0%, #0f766e 45%, #374151 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -1.2px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  color: #2563eb;
+  letter-spacing: -0.5px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  font-feature-settings: 'liga' 1, 'kern' 1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .brand-tagline-new {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 500;
   color: #64748b;
   margin: 2px 0 0;
-  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  letter-spacing: 0.8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  letter-spacing: 0.3px;
   line-height: 1.2;
-  text-transform: uppercase;
-  opacity: 0.9;
+}
+
+/* Simple Logo Styles - Match Homepage Colors */
+.brand-title-simple {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  color: #2563eb;
+  letter-spacing: -0.5px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.brand-tagline-simple {
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 2px 0 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.logo-text-simple {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 12px 0 0;
+  line-height: 1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  color: #2563eb;
+  letter-spacing: -0.8px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.logo-tagline-simple {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 6px 0 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+  text-align: center;
 }
 
 /* Page Title */
