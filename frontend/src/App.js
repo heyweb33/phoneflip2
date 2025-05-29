@@ -421,7 +421,7 @@ function App() {
         {showLogo ? (
           <div className="header-logo-enhanced" onClick={() => setCurrentPage('home')}>
             <img 
-              src="https://i.ibb.co/JjYDNHJn/Untitled-design-6.png" 
+              src="https://i.ibb.co/XDhh4Sv/image.png" 
               alt="PhoneFlip" 
               className="header-logo-img-enhanced"
             />
