@@ -32,69 +32,392 @@ function App() {
   const [samplePhones] = useState([
     {
       id: 1,
-      title: "iPhone 15 Pro Max 256GB",
+      model: "iPhone 15 Pro Max 256GB Natural Titanium",
       brand: "Apple",
-      condition: "Like New",
+      condition: "Excellent",
       price: 285000,
       negotiable: true,
-      city: "Karachi",
-      images: ["https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400"],
-      postedDate: "2 days ago"
+      location: "Karachi, Clifton",
+      timeAgo: "2 days ago",
+      images: [
+        "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=500",
+        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500",
+        "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=500"
+      ],
+      description: "iPhone 15 Pro Max in excellent condition. Used for only 3 months with complete protection. Original box, charger, and all accessories included. No scratches or dents. Battery health 98%. Face ID and all features working perfectly. PTA approved device.",
+      specifications: {
+        storage: "256GB",
+        color: "Natural Titanium",
+        batteryHealth: "98%",
+        screen: "6.7-inch Super Retina XDR",
+        processor: "A17 Pro chip",
+        camera: "48MP + 12MP + 12MP",
+        operatingSystem: "iOS 17",
+        connectivity: "5G, Wi-Fi 6E, Bluetooth 5.3",
+        warranty: "Apple warranty valid until Dec 2024"
+      },
+      features: [
+        "PTA Approved",
+        "Original Box & Accessories",
+        "No Physical Damage",
+        "Face ID Working",
+        "All Cameras Working",
+        "Fast Charging Compatible",
+        "Wireless Charging",
+        "Water Resistant IP68"
+      ],
+      seller: {
+        name: "Ahmed Khan",
+        rating: 4.8,
+        totalReviews: 23,
+        memberSince: "2022",
+        isVerified: true
+      },
+      similarPhones: [
+        {
+          model: "iPhone 15 Pro 128GB",
+          price: 235000,
+          location: "Karachi",
+          image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=300"
+        },
+        {
+          model: "iPhone 14 Pro Max 256GB",
+          price: 215000,
+          location: "Lahore",
+          image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300"
+        }
+      ]
     },
     {
       id: 2,
-      title: "Samsung Galaxy S24 Ultra 512GB",
-      brand: "Samsung", 
-      condition: "Excellent",
+      model: "Samsung Galaxy S24 Ultra 512GB Titanium Black",
+      brand: "Samsung",
+      condition: "Like New",
       price: 245000,
       negotiable: false,
-      city: "Lahore",
-      images: ["https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400"],
-      postedDate: "1 day ago"
+      location: "Lahore, DHA",
+      timeAgo: "1 day ago",
+      images: [
+        "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500",
+        "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=500",
+        "https://images.unsplash.com/photo-1567721913486-6585f069b332?w=500"
+      ],
+      description: "Brand new Samsung Galaxy S24 Ultra, purchased last month. Comes with complete box, S Pen, charger, and protective case. Never dropped, always kept in case. All cameras working perfectly including 200MP main camera. 5G compatible and unlocked to all networks.",
+      specifications: {
+        storage: "512GB",
+        color: "Titanium Black",
+        ram: "12GB",
+        screen: "6.8-inch Dynamic AMOLED 2X",
+        processor: "Snapdragon 8 Gen 3",
+        camera: "200MP + 50MP + 12MP + 10MP",
+        operatingSystem: "Android 14, One UI 6.1",
+        connectivity: "5G, Wi-Fi 7, Bluetooth 5.3",
+        warranty: "Samsung warranty valid until Jan 2026"
+      },
+      features: [
+        "S Pen Included",
+        "200MP Camera with 100x Zoom",
+        "PTA Approved",
+        "5G Ready",
+        "Titanium Build",
+        "IP68 Water Resistant",
+        "Wireless DeX Support",
+        "Ultra Wideband (UWB)"
+      ],
+      seller: {
+        name: "Fatima Electronics",
+        rating: 4.9,
+        totalReviews: 156,
+        memberSince: "2020",
+        isVerified: true,
+        isShop: true
+      },
+      similarPhones: [
+        {
+          model: "Samsung Galaxy S24+ 256GB",
+          price: 185000,
+          location: "Lahore",
+          image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=300"
+        },
+        {
+          model: "Samsung Galaxy S23 Ultra 512GB",
+          price: 195000,
+          location: "Karachi",
+          image: "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=300"
+        }
+      ]
     },
     {
       id: 3,
-      title: "Google Pixel 8 Pro 128GB",
+      model: "Google Pixel 8 Pro 128GB Obsidian",
       brand: "Google",
       condition: "New",
       price: 165000,
       negotiable: true,
-      city: "Islamabad",
-      images: ["https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400"],
-      postedDate: "3 hours ago"
+      location: "Islamabad, F-7",
+      timeAgo: "3 hours ago",
+      images: [
+        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500",
+        "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=500",
+        "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=500"
+      ],
+      description: "Brand new Google Pixel 8 Pro sealed box. International variant with official Google warranty. Features the latest Tensor G3 chip with AI photography capabilities. Perfect for photography enthusiasts. Call screening, live translate, and magic eraser included.",
+      specifications: {
+        storage: "128GB",
+        color: "Obsidian",
+        ram: "12GB",
+        screen: "6.7-inch LTPO OLED",
+        processor: "Google Tensor G3",
+        camera: "50MP + 48MP + 48MP",
+        operatingSystem: "Android 14",
+        connectivity: "5G, Wi-Fi 7, Bluetooth 5.3",
+        warranty: "Google warranty valid until Dec 2025"
+      },
+      features: [
+        "AI Photography Features",
+        "Magic Eraser",
+        "Call Screening",
+        "Live Translate", 
+        "Titan M Security Chip",
+        "7 Years of Updates",
+        "Wireless Charging",
+        "Temperature Sensor"
+      ],
+      seller: {
+        name: "Tech Hub Islamabad",
+        rating: 4.7,
+        totalReviews: 89,
+        memberSince: "2021",
+        isVerified: true,
+        isShop: true
+      },
+      similarPhones: [
+        {
+          model: "Google Pixel 8 128GB",
+          price: 115000,
+          location: "Islamabad",
+          image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300"
+        },
+        {
+          model: "Google Pixel 7 Pro 256GB",
+          price: 125000,
+          location: "Rawalpindi",
+          image: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=300"
+        }
+      ]
     },
     {
       id: 4,
-      title: "OnePlus 12 256GB Flowy Emerald",
+      model: "OnePlus 12 256GB Flowy Emerald",
       brand: "OnePlus",
-      condition: "Like New", 
+      condition: "Good",
       price: 135000,
       negotiable: true,
-      city: "Faisalabad",
-      images: ["https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400"],
-      postedDate: "5 days ago"
+      location: "Faisalabad, Jinnah Colony",
+      timeAgo: "5 days ago",
+      images: [
+        "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=500",
+        "https://images.unsplash.com/photo-1567721913486-6585f069b332?w=500",
+        "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=500"
+      ],
+      description: "OnePlus 12 in beautiful Flowy Emerald color. Used for 6 months with careful handling. Minor signs of use but all functions working perfectly. Comes with original OnePlus charger and case. Fast charging and gaming performance is excellent.",
+      specifications: {
+        storage: "256GB",
+        color: "Flowy Emerald",
+        ram: "12GB",
+        screen: "6.82-inch AMOLED",
+        processor: "Snapdragon 8 Gen 3",
+        camera: "50MP + 64MP + 48MP",
+        operatingSystem: "OxygenOS 14",
+        connectivity: "5G, Wi-Fi 7, Bluetooth 5.4",
+        warranty: "6 months remaining"
+      },
+      features: [
+        "100W Fast Charging",
+        "Hasselblad Camera System",
+        "120Hz Display",
+        "Dolby Atmos",
+        "OxygenOS",
+        "Gaming Mode",
+        "Dual SIM",
+        "Alert Slider"
+      ],
+      seller: {
+        name: "Usman Ali",
+        rating: 4.3,
+        totalReviews: 12,
+        memberSince: "2023",
+        isVerified: false
+      },
+      similarPhones: [
+        {
+          model: "OnePlus 11 256GB",
+          price: 105000,
+          location: "Faisalabad",
+          image: "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=300"
+        },
+        {
+          model: "OnePlus 12R 256GB",
+          price: 115000,
+          location: "Lahore",
+          image: "https://images.unsplash.com/photo-1567721913486-6585f069b332?w=300"
+        }
+      ]
+    }
+  ]);
+
+  // Sample shops data
+  const [sampleShops] = useState([
+    {
+      id: 1,
+      name: "Mobile Palace",
+      description: "Premium mobile phones and accessories dealer in Karachi. Authorized dealer for Apple, Samsung, and OnePlus.",
+      verified: true,
+      premium: true,
+      rating: 4.8,
+      totalReviews: 234,
+      memberSince: "2019",
+      address: "Shop 45-46, Zainab Market, Saddar",
+      city: "Karachi",
+      phone: "+92 21 3241 5678",
+      whatsapp: "+92 300 1234567",
+      workingHours: {
+        weekdays: { open: "10:00 AM", close: "9:00 PM" },
+        saturday: { open: "10:00 AM", close: "9:00 PM" },
+        sunday: "Closed"
+      },
+      logo: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=200",
+      phones: [
+        {
+          id: 101,
+          model: "iPhone 15 Pro 128GB",
+          brand: "Apple",
+          price: 235000,
+          condition: "New",
+          storage: "128GB",
+          color: "Blue Titanium",
+          image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400",
+          timeAgo: "1 day ago",
+          listedDate: "2024-06-14"
+        },
+        {
+          id: 102,
+          model: "Samsung Galaxy S24 256GB",
+          brand: "Samsung",
+          price: 175000,
+          condition: "New",
+          storage: "256GB",
+          color: "Phantom Black",
+          image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400",
+          timeAgo: "2 days ago",
+          listedDate: "2024-06-13"
+        },
+        {
+          id: 103,
+          model: "OnePlus 12R 256GB",
+          brand: "OnePlus",
+          price: 115000,
+          condition: "New",
+          storage: "256GB",
+          color: "Cool Blue",
+          image: "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400",
+          timeAgo: "3 days ago",
+          listedDate: "2024-06-12"
+        },
+        {
+          id: 104,
+          model: "iPhone 14 256GB",
+          brand: "Apple",
+          price: 185000,
+          condition: "Like New",
+          storage: "256GB",
+          color: "Purple",
+          image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+          timeAgo: "4 days ago",
+          listedDate: "2024-06-11"
+        },
+        {
+          id: 105,
+          model: "Samsung Galaxy A55 128GB",
+          brand: "Samsung",
+          price: 75000,
+          condition: "New",
+          storage: "128GB",
+          color: "Awesome Navy",
+          image: "https://images.unsplash.com/photo-1567721913486-6585f069b332?w=400",
+          timeAgo: "5 days ago",
+          listedDate: "2024-06-10"
+        },
+        {
+          id: 106,
+          model: "Google Pixel 8 128GB",
+          brand: "Google",
+          price: 115000,
+          condition: "New",
+          storage: "128GB",
+          color: "Hazel",
+          image: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=400",
+          timeAgo: "1 week ago",
+          listedDate: "2024-06-08"
+        }
+      ]
     },
     {
-      id: 5,
-      title: "Xiaomi 14 Pro 512GB Black",
-      brand: "Xiaomi",
-      condition: "Excellent",
-      price: 95000,
-      negotiable: false,
-      city: "Multan",
-      images: ["https://images.unsplash.com/photo-1567721913486-6585f069b332?w=400"],
-      postedDate: "1 week ago"
-    },
-    {
-      id: 6,
-      title: "Nothing Phone (2) 256GB White",
-      brand: "Nothing",
-      condition: "New",
-      price: 89000,
-      negotiable: true,
-      city: "Peshawar",
-      images: ["https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=400"],
-      postedDate: "4 days ago"
+      id: 2,
+      name: "Tech Hub Lahore",
+      description: "Your trusted technology partner. Specializing in latest smartphones, tablets, and tech accessories.",
+      verified: true,
+      premium: false,
+      rating: 4.6,
+      totalReviews: 145,
+      memberSince: "2020",
+      address: "2nd Floor, Hafeez Center, Gulberg",
+      city: "Lahore",
+      phone: "+92 42 3574 9876",
+      whatsapp: "+92 301 9876543",
+      workingHours: {
+        weekdays: { open: "11:00 AM", close: "8:00 PM" },
+        saturday: { open: "11:00 AM", close: "8:00 PM" },
+        sunday: { open: "2:00 PM", close: "7:00 PM" }
+      },
+      phones: [
+        {
+          id: 201,
+          model: "Xiaomi 14 Ultra 512GB",
+          brand: "Xiaomi",
+          price: 145000,
+          condition: "New",
+          storage: "512GB",
+          color: "White",
+          image: "https://images.unsplash.com/photo-1567721913486-6585f069b332?w=400",
+          timeAgo: "2 days ago",
+          listedDate: "2024-06-13"
+        },
+        {
+          id: 202,
+          model: "Nothing Phone (2) 256GB",
+          brand: "Nothing",
+          price: 89000,
+          condition: "New",
+          storage: "256GB",
+          color: "White",
+          image: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=400",
+          timeAgo: "3 days ago",
+          listedDate: "2024-06-12"
+        },
+        {
+          id: 203,
+          model: "Realme GT 5 Pro 256GB",
+          brand: "Realme",
+          price: 85000,
+          condition: "New",
+          storage: "256GB",
+          color: "Snap Green",
+          image: "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400",
+          timeAgo: "4 days ago",
+          listedDate: "2024-06-11"
+        }
+      ]
     }
   ]);
   // Enhanced search functionality with suggestions
