@@ -1088,10 +1088,10 @@ function App() {
             </div>
             
             <div className="hero-visual">
-              <div className="floating-phones">
-                <div className="phone-float phone-1">📱</div>
-                <div className="phone-float phone-2">📲</div>
-                <div className="phone-float phone-3">📞</div>
+              <div className="hero-decoration">
+                <div className="deco-circle circle-1"></div>
+                <div className="deco-circle circle-2"></div>
+                <div className="deco-circle circle-3"></div>
               </div>
             </div>
           </div>
