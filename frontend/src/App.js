@@ -973,11 +973,11 @@ function App() {
 
   // Enhanced Home Page with Logo in Header
   const HomePage = () => (
-    <div className="page">
+    <div className="page landing-page">
       <Header showProfile={true} showLogo={true} />
       
       <div className="content">
-        {!user && <Logo />}
+        {!user && <Logo context="landing-page" />}
         
         {/* Welcome back section for logged in users */}
         {user && (
