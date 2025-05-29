@@ -1007,7 +1007,7 @@ function App() {
             <button className="view-all">View All</button>
           </div>
           <div className="search-history">
-            {searchHistory.map((term, index) => (
+            {searchHistory.slice(0, 8).map((term, index) => (
               <button 
                 key={index} 
                 className="search-chip"
@@ -1058,7 +1058,11 @@ function App() {
               Array.from({length: 4}).map((_, index) => (
                 <div key={index} className="phone-card sample">
                   <div className="phone-image">
-                    <div className="image-placeholder">📱</div>
+                    <div className="image-placeholder">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17 2H7c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM7 4h10v16H7V4z"/>
+                      </svg>
+                    </div>
                   </div>
                   <div className="phone-info">
                     <h4>Loading phones...</h4>
@@ -1068,6 +1072,97 @@ function App() {
                 </div>
               ))
             )}
+          </div>
+        </div>
+
+        {/* Featured Shops Section */}
+        <div className="section">
+          <div className="section-header">
+            <h3>Featured Shops</h3>
+            <button className="view-all">View All</button>
+          </div>
+          <div className="featured-shops">
+            {[
+              { name: "TechWorld Store", rating: 4.8, phones: 150, verified: true },
+              { name: "Mobile Hub", rating: 4.6, phones: 89, verified: true },
+              { name: "Phone Palace", rating: 4.9, phones: 234, verified: true },
+              { name: "Digital Mart", rating: 4.7, phones: 67, verified: false }
+            ].map((shop, index) => (
+              <div key={index} className="shop-card" onClick={() => showToast(`Opening ${shop.name}`, 'info')}>
+                <div className="shop-avatar">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </div>
+                <div className="shop-info">
+                  <div className="shop-header">
+                    <h4>{shop.name}</h4>
+                    {shop.verified && (
+                      <svg className="verified-badge" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"/>
+                      </svg>
+                    )}
+                  </div>
+                  <div className="shop-stats">
+                    <span className="rating">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.46,13.97L5.82,21L12,17.27Z"/>
+                      </svg>
+                      {shop.rating}
+                    </span>
+                    <span className="phone-count">{shop.phones} phones</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Our Offerings Section */}
+        <div className="section">
+          <div className="section-header">
+            <h3>Our Offerings</h3>
+          </div>
+          <div className="offerings-grid">
+            <div className="offering-card" onClick={() => showToast('Secure payments coming soon!', 'info')}>
+              <div className="offering-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"/>
+                </svg>
+              </div>
+              <h4>Secure Payments</h4>
+              <p>Safe & encrypted transactions</p>
+            </div>
+
+            <div className="offering-card" onClick={() => showToast('Quality assurance coming soon!', 'info')}>
+              <div className="offering-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
+                </svg>
+              </div>
+              <h4>Quality Assured</h4>
+              <p>Verified phone conditions</p>
+            </div>
+
+            <div className="offering-card" onClick={() => showToast('Fast delivery coming soon!', 'info')}>
+              <div className="offering-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3,4A2,2 0 0,0 1,6V17H3A3,3 0 0,0 6,20A3,3 0 0,0 9,17H15A3,3 0 0,0 18,20A3,3 0 0,0 21,17H23V12L20,8H17V4M3,6H15V15H9.22C8.67,14.39 7.95,14 7.14,14C6.32,14 5.61,14.39 5.06,15H3M17,10H19.5L21.47,12H17M6,15.5A1.5,1.5 0 0,1 7.5,17A1.5,1.5 0 0,1 6,18.5A1.5,1.5 0 0,1 4.5,17A1.5,1.5 0 0,1 6,15.5M18,15.5A1.5,1.5 0 0,1 19.5,17A1.5,1.5 0 0,1 18,18.5A1.5,1.5 0 0,1 16.5,17A1.5,1.5 0 0,1 18,15.5Z"/>
+                </svg>
+              </div>
+              <h4>Fast Delivery</h4>
+              <p>Quick doorstep delivery</p>
+            </div>
+
+            <div className="offering-card" onClick={() => showToast('Customer support coming soon!', 'info')}>
+              <div className="offering-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"/>
+                </svg>
+              </div>
+              <h4>24/7 Support</h4>
+              <p>Always here to help</p>
+            </div>
           </div>
         </div>
 
