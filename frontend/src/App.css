@@ -166,42 +166,65 @@ body {
   transform: translateY(-50%) scale(1.05);
 }
 
-/* Enhanced Logo Styles */
+/* Enhanced Logo Styles with Professional Sizing */
 .logo-container {
   text-align: center;
-  margin: 40px 0;
+  margin: 30px 0;
   padding: 20px;
   transition: all 0.3s ease;
 }
 
 .logo-container.compact {
-  margin: 20px 0;
+  margin: 15px 0;
   padding: 10px;
 }
 
 .logo-image-container {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   position: relative;
+  display: inline-block;
 }
 
 .logo-image {
-  width: 120px;
-  height: auto;
-  max-height: 120px;
+  /* Professional sizing for different contexts */
+  height: 64px;
+  width: auto;
+  max-width: 200px;
   object-fit: contain;
-  border-radius: 16px;
+  border-radius: 8px;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  
+  /* Remove white background professionally */
+  background: transparent;
+  /* For logos with white backgrounds, try to remove them */
+  filter: contrast(1.1) brightness(1.05);
+  
+  /* Professional shadow for branding */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .logo-image:hover {
-  transform: scale(1.05);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  transform: scale(1.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
+/* Compact mode - smaller, more subtle */
 .logo-container.compact .logo-image {
-  width: 80px;
-  max-height: 80px;
+  height: 40px;
+  max-width: 140px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Auth pages - welcoming but not overwhelming */
+.auth-page .logo-image {
+  height: 56px;
+  max-width: 180px;
+}
+
+/* Landing page - prominent but professional */
+.landing-page .logo-image {
+  height: 72px;
+  max-width: 220px;
 }
 
 .logo-fallback {
