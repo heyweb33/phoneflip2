@@ -1626,106 +1626,263 @@ function App() {
     </div>
   );
 
-  // Search Results Page Component
-  const SearchResultsPage = () => (
-    <div className="page">
-      <Header title="Search Results" showBack={true} showProfile={true} />
-      
-      <div className="content">
-        <div className="search-results-header">
-          <span className="results-count">{listings.length} phones found</span>
-          <button className="filter-toggle" onClick={() => showToast('Filters coming soon!', 'info')}>
-            🔧 Filters
-          </button>
-        </div>
+  // Enhanced Search Results Page with Advanced Filters
+  const SearchResultsPage = () => {
+    const [showFilters, setShowFilters] = useState(false);
+    const [sortBy, setSortBy] = useState('recent');
+    const [priceRange, setPriceRange] = useState([0, 500000]);
+    const [selectedConditions, setSelectedConditions] = useState([]);
+    const [selectedBrands, setSelectedBrands] = useState([]);
+    const [selectedCities, setSelectedCities] = useState([]);
 
-        <div className="filters-section">
-          <div className="filters-row">
-            <div className="filter-group">
-              <label className="filter-label">Brand</label>
-              <select 
-                className="filter-select"
-                value={filters.brand}
-                onChange={(e) => setFilters({...filters, brand: e.target.value})}
-              >
-                <option value="">All Brands</option>
-                {Object.keys(phoneBrands).map(brand => (
-                  <option key={brand} value={brand}>{brand}</option>
-                ))}
-              </select>
+    const filteredListings = listings.length > 0 ? listings : samplePhones;
+    const searchTerm = filters.search || searchQuery;
+
+    const handleFilterChange = (filterType, value) => {
+      switch (filterType) {
+        case 'condition':
+          setSelectedConditions(prev => 
+            prev.includes(value) 
+              ? prev.filter(c => c !== value)
+              : [...prev, value]
+          );
+          break;
+        case 'brand':
+          setSelectedBrands(prev => 
+            prev.includes(value) 
+              ? prev.filter(b => b !== value)
+              : [...prev, value]
+          );
+          break;
+        case 'city':
+          setSelectedCities(prev => 
+            prev.includes(value) 
+              ? prev.filter(c => c !== value)
+              : [...prev, value]
+          );
+          break;
+        default:
+          break;
+      }
+    };
+
+    const clearAllFilters = () => {
+      setSelectedConditions([]);
+      setSelectedBrands([]);
+      setSelectedCities([]);
+      setPriceRange([0, 500000]);
+      setSortBy('recent');
+    };
+
+    const sortOptions = [
+      { key: 'recent', label: 'Most Recent', icon: '🕒' },
+      { key: 'price_low', label: 'Price: Low to High', icon: '⬆️' },
+      { key: 'price_high', label: 'Price: High to Low', icon: '⬇️' },
+      { key: 'popular', label: 'Most Popular', icon: '🔥' }
+    ];
+
+    return (
+      <div className="page search-results-page">
+        <Header title="" showBack={true} showSearch={false} showProfile={true} />
+        
+        <div className="content search-content">
+          {/* Search Results Header */}
+          <div className="search-results-header">
+            <div className="results-summary">
+              <h2 className="results-title">
+                {searchTerm ? `Results for "${searchTerm}"` : 'All Phones'}
+              </h2>
+              <p className="results-count">
+                {filteredListings.length} phone{filteredListings.length !== 1 ? 's' : ''} found
+              </p>
             </div>
             
-            <div className="filter-group">
-              <label className="filter-label">City</label>
-              <select 
-                className="filter-select"
-                value={filters.city}
-                onChange={(e) => setFilters({...filters, city: e.target.value})}
+            <div className="search-actions">
+              <button 
+                className="filter-toggle-btn"
+                onClick={() => setShowFilters(!showFilters)}
               >
-                <option value="">All Cities</option>
-                {cities.map(city => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="sort-section">
-            <label className="filter-label">Sort By</label>
-            <div className="sort-buttons">
-              {[
-                {key: 'recent', label: 'Recent'},
-                {key: 'price_low', label: 'Price: Low to High'},
-                {key: 'price_high', label: 'Price: High to Low'},
-                {key: 'popular', label: 'Popular'}
-              ].map(sort => (
-                <button 
-                  key={sort.key}
-                  className={`sort-btn ${filters.sortBy === sort.key ? 'active' : ''}`}
-                  onClick={() => setFilters({...filters, sortBy: sort.key})}
-                >
-                  {sort.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {listings.length > 0 ? (
-          <>
-            <div className="phone-grid search-results-grid">
-              {listings.map(listing => (
-                <PhoneCard key={listing.id} listing={listing} />
-              ))}
-            </div>
-            
-            {hasMoreListings && (
-              <button className="load-more-btn" onClick={loadMoreListings} disabled={loading}>
-                {loading ? 'Loading...' : 'Load More'}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M4.25 5.61C6.27 8.2 10 13 10 13v6c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-6s3.73-4.8 5.75-7.39c.51-.66.04-1.61-.79-1.61H5.04c-.83 0-1.3.95-.79 1.61z"/>
+                </svg>
+                Filter
               </button>
-            )}
-          </>
-        ) : (
-          <div className="empty-search">
-            <div className="empty-icon">🔍</div>
-            <h3>No phones found</h3>
-            <p>Try adjusting your search criteria or browse categories</p>
-            <button className="clear-filters-btn" onClick={() => {
-              setFilters({
-                brand: '', city: '', condition: '', search: '', 
-                minPrice: '', maxPrice: '', sortBy: 'recent'
-              });
-              loadListings();
-            }}>
-              Clear Filters
-            </button>
+              
+              <div className="sort-dropdown">
+                <select 
+                  value={sortBy} 
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="sort-select"
+                >
+                  {sortOptions.map(option => (
+                    <option key={option.key} value={option.key}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* Advanced Filters Panel */}
+          {showFilters && (
+            <div className="filters-panel">
+              <div className="filters-header">
+                <h3>Filters</h3>
+                <button className="clear-filters" onClick={clearAllFilters}>
+                  Clear All
+                </button>
+              </div>
+              
+              <div className="filters-content">
+                {/* Price Range Filter */}
+                <div className="filter-section">
+                  <h4 className="filter-title">Price Range</h4>
+                  <div className="price-range-container">
+                    <div className="price-inputs">
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        value={priceRange[0]}
+                        onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                        className="price-input"
+                      />
+                      <span className="price-separator">to</span>
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        value={priceRange[1]}
+                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 500000])}
+                        className="price-input"
+                      />
+                    </div>
+                    <div className="price-presets">
+                      <button className="preset-btn" onClick={() => setPriceRange([0, 50000])}>Under 50k</button>
+                      <button className="preset-btn" onClick={() => setPriceRange([50000, 100000])}>50k - 100k</button>
+                      <button className="preset-btn" onClick={() => setPriceRange([100000, 200000])}>100k - 200k</button>
+                      <button className="preset-btn" onClick={() => setPriceRange([200000, 500000])}>200k+</button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Condition Filter */}
+                <div className="filter-section">
+                  <h4 className="filter-title">Condition</h4>
+                  <div className="filter-options">
+                    {['New', 'Like New', 'Excellent', 'Good', 'Fair'].map(condition => (
+                      <label key={condition} className="filter-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={selectedConditions.includes(condition)}
+                          onChange={() => handleFilterChange('condition', condition)}
+                        />
+                        <span className="checkmark"></span>
+                        <span className="filter-label">{condition}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Brand Filter */}
+                <div className="filter-section">
+                  <h4 className="filter-title">Brand</h4>
+                  <div className="filter-options">
+                    {['Apple', 'Samsung', 'Google', 'OnePlus', 'Xiaomi', 'Nothing'].map(brand => (
+                      <label key={brand} className="filter-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={selectedBrands.includes(brand)}
+                          onChange={() => handleFilterChange('brand', brand)}
+                        />
+                        <span className="checkmark"></span>
+                        <span className="filter-label">{brand}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* City Filter */}
+                <div className="filter-section">
+                  <h4 className="filter-title">Location</h4>
+                  <div className="filter-options">
+                    {['Karachi', 'Lahore', 'Islamabad', 'Faisalabad', 'Multan', 'Peshawar'].map(city => (
+                      <label key={city} className="filter-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={selectedCities.includes(city)}
+                          onChange={() => handleFilterChange('city', city)}
+                        />
+                        <span className="checkmark"></span>
+                        <span className="filter-label">{city}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="filters-footer">
+                <button className="apply-filters-btn" onClick={() => setShowFilters(false)}>
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Active Filters Display */}
+          {(selectedConditions.length > 0 || selectedBrands.length > 0 || selectedCities.length > 0) && (
+            <div className="active-filters">
+              <span className="active-filters-label">Active filters:</span>
+              {selectedConditions.map(condition => (
+                <span key={condition} className="active-filter-tag">
+                  {condition}
+                  <button onClick={() => handleFilterChange('condition', condition)}>×</button>
+                </span>
+              ))}
+              {selectedBrands.map(brand => (
+                <span key={brand} className="active-filter-tag">
+                  {brand}
+                  <button onClick={() => handleFilterChange('brand', brand)}>×</button>
+                </span>
+              ))}
+              {selectedCities.map(city => (
+                <span key={city} className="active-filter-tag">
+                  {city}
+                  <button onClick={() => handleFilterChange('city', city)}>×</button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Search Results Grid */}
+          {filteredListings.length > 0 ? (
+            <div className="search-results-grid">
+              {filteredListings.map(listing => (
+                <PhoneCard key={listing.id} listing={listing} featured={false} />
+              ))}
+            </div>
+          ) : (
+            <div className="no-results">
+              <div className="no-results-icon">🔍</div>
+              <h3>No phones found</h3>
+              <p>Try adjusting your search criteria or browse our categories</p>
+              <button className="browse-categories-btn" onClick={() => setCurrentPage('categories')}>
+                Browse Categories
+              </button>
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {hasMoreListings && filteredListings.length > 0 && (
+            <button className="load-more-btn" onClick={loadMoreListings} disabled={loading}>
+              {loading ? 'Loading...' : 'Load More Results'}
+            </button>
+          )}
+        </div>
+        
+        <BottomNav />
       </div>
-      
-      <BottomNav />
-    </div>
-  );
+    );
+  };
 
   // Search Page Component
   const SearchPage = () => (
