@@ -614,7 +614,7 @@ function App() {
           </div>
         </div>
         
-        {/* Modern Search Section */}
+        {/* Modern Search Section with Suggestions */}
         {showSearch && currentPage === 'home' && (
           <div className="search-section-modern">
             <div className="search-container-stunning">
@@ -628,23 +628,43 @@ function App() {
                 type="text"
                 placeholder="Search phones, brands, models..."
                 className="search-input-stunning"
-                value={filters.search}
-                onChange={(e) => setFilters({...filters, search: e.target.value})}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                value={searchQuery}
+                onChange={(e) => handleSearchInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && performSearch()}
+                onFocus={() => searchQuery.length > 0 && setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               />
               
-              <button onClick={() => handleSearch()} className="search-action-btn">
+              <button onClick={() => performSearch()} className="search-action-btn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 1 1 9.5 3z"/>
                 </svg>
               </button>
+              
+              {/* Search Suggestions Dropdown */}
+              {showSuggestions && searchSuggestions.length > 0 && (
+                <div className="search-suggestions-dropdown">
+                  {searchSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      className="suggestion-item"
+                      onClick={() => selectSuggestion(suggestion)}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                      </svg>
+                      <span>{suggestion}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             
             <div className="trending-tags">
               <span className="trending-label">Trending:</span>
-              <button className="tag-pill">iPhone 15 Pro</button>
-              <button className="tag-pill">Galaxy S24</button>
-              <button className="tag-pill">Under 50k PKR</button>
+              <button className="tag-pill" onClick={() => selectSuggestion('iPhone 15 Pro')}>iPhone 15 Pro</button>
+              <button className="tag-pill" onClick={() => selectSuggestion('Galaxy S24')}>Galaxy S24</button>
+              <button className="tag-pill" onClick={() => selectSuggestion('Under 50k PKR')}>Under 50k PKR</button>
             </div>
           </div>
         )}
