@@ -543,70 +543,30 @@ function App() {
           
           {showLogo ? (
             <div className="logo-brand-showcase" onClick={() => setCurrentPage('home')}>
-              {/* Modern PhoneFlip Logo - Sleek Professional Design */}
+              {/* Simple PhoneFlip Logo - Matching Homepage Colors */}
               <div className="phoneflip-logo">
                 <div className="logo-icon-container">
-                  <svg className="phoneflip-icon" width="48" height="48" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    {/* Outer circle with gradient - Modern design */}
-                    <circle cx="60" cy="60" r="55" fill="url(#headerLogoGradient)" stroke="url(#headerBorderGradient)" strokeWidth="2"/>
+                  <svg className="phoneflip-icon" width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Simple circle background */}
+                    <circle cx="50" cy="50" r="45" fill="#3b82f6" stroke="#2563eb" strokeWidth="2"/>
                     
-                    {/* Phone outline - sleek minimal design */}
-                    <rect x="48" y="38" width="24" height="44" rx="6" stroke="white" strokeWidth="2.5" fill="none"/>
-                    <circle cx="60" cy="45" r="1.2" fill="white" opacity="0.9"/>
-                    <rect x="54" y="74" width="12" height="2" rx="1" fill="white" opacity="0.9"/>
+                    {/* Simple phone outline */}
+                    <rect x="42" y="25" width="16" height="28" rx="3" stroke="white" strokeWidth="2" fill="none"/>
+                    <circle cx="50" cy="32" r="1" fill="white"/>
+                    <rect x="46" y="47" width="8" height="2" rx="1" fill="white"/>
                     
-                    {/* Modern curved exchange arrows */}
-                    <path 
-                      d="M28 52 Q23 52 23 57 Q23 67 33 67 Q38 67 38 62" 
-                      stroke="#00e5cc" 
-                      strokeWidth="2.8" 
-                      fill="none" 
-                      strokeLinecap="round"
-                      markerEnd="url(#headerArrow)"
-                    />
-                    <path 
-                      d="M92 68 Q97 68 97 63 Q97 53 87 53 Q82 53 82 58" 
-                      stroke="#00e5cc" 
-                      strokeWidth="2.8" 
-                      fill="none" 
-                      strokeLinecap="round"
-                      markerEnd="url(#headerArrow)"
-                    />
+                    {/* Simple flip arrows */}
+                    <path d="M28 42 Q23 42 23 47" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                    <path d="M25 44 L23 47 L25 50" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
                     
-                    {/* Central exchange symbol */}
-                    <circle cx="60" cy="60" r="6" fill="rgba(255,255,255,0.15)" stroke="white" strokeWidth="1.2"/>
-                    <path d="M57 58 L63 58 M63 62 L57 62 M61 56 L64 58 L61 60 M59 60 L56 62 L59 64" 
-                          stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                    
-                    {/* Abstract tech elements */}
-                    <circle cx="30" cy="35" r="1.5" fill="#00e5cc" opacity="0.6"/>
-                    <circle cx="90" cy="85" r="1.5" fill="#00e5cc" opacity="0.6"/>
-                    <rect x="85" y="30" width="2" height="8" rx="1" fill="white" opacity="0.4"/>
-                    <rect x="33" y="82" width="2" height="8" rx="1" fill="white" opacity="0.4"/>
-                    
-                    {/* Gradient definitions */}
-                    <defs>
-                      <linearGradient id="headerLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#1e40af"/>
-                        <stop offset="40%" stopColor="#0f766e"/>
-                        <stop offset="100%" stopColor="#374151"/>
-                      </linearGradient>
-                      <linearGradient id="headerBorderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#3b82f6"/>
-                        <stop offset="100%" stopColor="#14b8a6"/>
-                      </linearGradient>
-                      <marker id="headerArrow" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-                        <polygon points="0 0, 6 2.5, 0 5" fill="#00e5cc"/>
-                      </marker>
-                    </defs>
+                    <path d="M72 58 Q77 58 77 53" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                    <path d="M75 56 L77 53 L75 50" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
                   </svg>
-                  
-                  <div className="logo-shine"></div>
                 </div>
                 
                 <div className="brand-identity">
-                  <h1 className="brand-title-sleek">PhoneFlip</h1>
-                  <p className="brand-tagline-new">Buy • Sell • Exchange</p>
+                  <h1 className="brand-title-simple">PhoneFlip</h1>
+                  <p className="brand-tagline-simple">your next phone, just a flip away</p>
                 </div>
               </div>
             </div>
