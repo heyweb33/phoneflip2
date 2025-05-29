@@ -1093,9 +1093,411 @@ function App() {
     </div>
   );
 
-  // Rest of the components would continue here with the same pattern...
-  // For brevity, I'm showing just the key changes
-  
+  // Phone Card Component
+  const PhoneCard = ({ listing, compact = false }) => (
+    <div className={`phone-card ${compact ? 'compact' : ''}`} onClick={() => setSelectedListing(listing)}>
+      <div className="phone-image">
+        {listing.images && listing.images.length > 0 ? (
+          <img src={listing.images[0]} alt={listing.title} />
+        ) : (
+          <div className="image-placeholder">📱</div>
+        )}
+      </div>
+      
+      <button 
+        className="favorite-btn"
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleFavorite(listing.id);
+        }}
+      >
+        {favorites.some(fav => fav.id === listing.id) ? '❤️' : '🤍'}
+      </button>
+      
+      <div className="phone-info">
+        <h4>{listing.title}</h4>
+        <p className="phone-condition">{listing.condition}</p>
+        <p className="phone-price">
+          Rs {listing.price.toLocaleString()}
+          {listing.negotiable && <span className="negotiable-text"> (Negotiable)</span>}
+        </p>
+        <p className="phone-location">📍 {listing.city}</p>
+      </div>
+    </div>
+  );
+
+  // Categories Page Component
+  const CategoriesPage = () => (
+    <div className="page">
+      <Header title="Categories" showBack={true} showProfile={true} />
+      
+      <div className="content">
+        <div className="categories-hero">
+          <h2>Browse Categories</h2>
+          <p>Find phones by brand, condition, or location</p>
+        </div>
+
+        <div className="categories-grid">
+          {Object.entries(phoneBrands).map(([brand, models]) => (
+            <div key={brand} className="category-card" onClick={() => {
+              setFilters({...filters, brand});
+              loadListings({brand});
+              setCurrentPage('searchResults');
+            }}>
+              <div className={`category-icon ${brand.toLowerCase()}`}>
+                <span style={{fontSize: '32px'}}>
+                  {brand === 'Apple' ? '🍎' : 
+                   brand === 'Samsung' ? '📱' : 
+                   brand === 'Xiaomi' ? '🔥' : '📲'}
+                </span>
+              </div>
+              <h3>{brand}</h3>
+              <p>{models.length} models available</p>
+              <span className="category-count">{listings.filter(l => l.brand === brand).length}</span>
+            </div>
+          ))}
+          
+          <div className="category-card" onClick={() => {
+            setFilters({...filters, condition: 'New'});
+            loadListings({condition: 'New'});
+            setCurrentPage('searchResults');
+          }}>
+            <div className="category-icon new-phones">
+              <span style={{fontSize: '32px'}}>✨</span>
+            </div>
+            <h3>New Phones</h3>
+            <p>Brand new devices</p>
+            <span className="category-count">{listings.filter(l => l.condition === 'New').length}</span>
+          </div>
+          
+          <div className="category-card" onClick={() => {
+            setFilters({...filters, condition: 'Like New'});
+            loadListings({condition: 'Like New'});
+            setCurrentPage('searchResults');
+          }}>
+            <div className="category-icon like-new">
+              <span style={{fontSize: '32px'}}>💎</span>
+            </div>
+            <h3>Like New</h3>
+            <p>Excellent condition</p>
+            <span className="category-count">{listings.filter(l => l.condition === 'Like New').length}</span>
+          </div>
+        </div>
+
+        <div className="quick-filters">
+          <h3>Quick Filters</h3>
+          <div className="quick-filter-chips">
+            {['Under 50k', '50k-100k', '100k+', 'This Week'].map(filter => (
+              <button key={filter} className="quick-chip" onClick={() => {
+                // Add quick filter logic here
+                showToast(`Filter: ${filter}`, 'info');
+              }}>
+                {filter}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <BottomNav />
+    </div>
+  );
+
+  // Search Results Page Component
+  const SearchResultsPage = () => (
+    <div className="page">
+      <Header title="Search Results" showBack={true} showProfile={true} />
+      
+      <div className="content">
+        <div className="search-results-header">
+          <span className="results-count">{listings.length} phones found</span>
+          <button className="filter-toggle" onClick={() => showToast('Filters coming soon!', 'info')}>
+            🔧 Filters
+          </button>
+        </div>
+
+        <div className="filters-section">
+          <div className="filters-row">
+            <div className="filter-group">
+              <label className="filter-label">Brand</label>
+              <select 
+                className="filter-select"
+                value={filters.brand}
+                onChange={(e) => setFilters({...filters, brand: e.target.value})}
+              >
+                <option value="">All Brands</option>
+                {Object.keys(phoneBrands).map(brand => (
+                  <option key={brand} value={brand}>{brand}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="filter-group">
+              <label className="filter-label">City</label>
+              <select 
+                className="filter-select"
+                value={filters.city}
+                onChange={(e) => setFilters({...filters, city: e.target.value})}
+              >
+                <option value="">All Cities</option>
+                {cities.map(city => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="sort-section">
+            <label className="filter-label">Sort By</label>
+            <div className="sort-buttons">
+              {[
+                {key: 'recent', label: 'Recent'},
+                {key: 'price_low', label: 'Price: Low to High'},
+                {key: 'price_high', label: 'Price: High to Low'},
+                {key: 'popular', label: 'Popular'}
+              ].map(sort => (
+                <button 
+                  key={sort.key}
+                  className={`sort-btn ${filters.sortBy === sort.key ? 'active' : ''}`}
+                  onClick={() => setFilters({...filters, sortBy: sort.key})}
+                >
+                  {sort.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {listings.length > 0 ? (
+          <>
+            <div className="phone-grid search-results-grid">
+              {listings.map(listing => (
+                <PhoneCard key={listing.id} listing={listing} />
+              ))}
+            </div>
+            
+            {hasMoreListings && (
+              <button className="load-more-btn" onClick={loadMoreListings} disabled={loading}>
+                {loading ? 'Loading...' : 'Load More'}
+              </button>
+            )}
+          </>
+        ) : (
+          <div className="empty-search">
+            <div className="empty-icon">🔍</div>
+            <h3>No phones found</h3>
+            <p>Try adjusting your search criteria or browse categories</p>
+            <button className="clear-filters-btn" onClick={() => {
+              setFilters({
+                brand: '', city: '', condition: '', search: '', 
+                minPrice: '', maxPrice: '', sortBy: 'recent'
+              });
+              loadListings();
+            }}>
+              Clear Filters
+            </button>
+          </div>
+        )}
+      </div>
+      
+      <BottomNav />
+    </div>
+  );
+
+  // Search Page Component
+  const SearchPage = () => (
+    <div className="page">
+      <Header title="Search" showBack={true} showProfile={true} />
+      
+      <div className="content">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search Mobile Phones"
+            className="search-input"
+            value={filters.search}
+            onChange={(e) => setFilters({...filters, search: e.target.value})}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            autoFocus
+          />
+          <button onClick={() => handleSearch()} className="search-icon">🔍</button>
+        </div>
+
+        <div className="section">
+          <div className="section-header">
+            <h3>Recent Searches</h3>
+          </div>
+          <div className="search-history">
+            {searchHistory.map((term, index) => (
+              <button 
+                key={index} 
+                className="search-chip"
+                onClick={() => {
+                  setFilters({...filters, search: term});
+                  handleSearch(term);
+                }}
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="section">
+          <div className="section-header">
+            <h3>Popular Brands</h3>
+          </div>
+          <div className="categories-grid">
+            {Object.keys(phoneBrands).slice(0, 4).map(brand => (
+              <div key={brand} className="category-card" onClick={() => {
+                setFilters({...filters, brand, search: brand});
+                handleSearch(brand);
+              }}>
+                <div className={`category-icon ${brand.toLowerCase()}`}>
+                  <span style={{fontSize: '24px'}}>
+                    {brand === 'Apple' ? '🍎' : 
+                     brand === 'Samsung' ? '📱' : 
+                     brand === 'Xiaomi' ? '🔥' : '📲'}
+                  </span>
+                </div>
+                <h3>{brand}</h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <BottomNav />
+    </div>
+  );
+
+  // Profile Page Component
+  const ProfilePage = () => (
+    <div className="page">
+      <Header title="Profile" showBack={true} />
+      
+      <div className="content">
+        {user ? (
+          <div className="profile-container">
+            <div className="profile-header">
+              <div className="profile-avatar">
+                {user.profile_picture ? (
+                  <img src={user.profile_picture} alt={user.name} />
+                ) : (
+                  <span>{user.name.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <h2>{user.name}</h2>
+              <p>@{user.email}</p>
+              <span className="user-type-badge">{user.user_type}</span>
+            </div>
+
+            <div className="profile-actions">
+              <button className="profile-action-btn" onClick={() => setCurrentPage('favorites')}>
+                <span>❤️</span> Favorites
+              </button>
+              <button className="profile-action-btn" onClick={() => setCurrentPage('messages')}>
+                <span>💬</span> Messages
+              </button>
+              <button className="profile-action-btn" onClick={() => setCurrentPage('myListings')}>
+                <span>📱</span> My Listings
+              </button>
+              <button className="profile-action-btn" onClick={() => setCurrentPage('savedSearches')}>
+                <span>🔍</span> Saved Searches
+              </button>
+            </div>
+
+            <div className="profile-menu">
+              <button className="menu-item" onClick={() => showToast('Settings coming soon!', 'info')}>
+                ⚙️ Settings
+              </button>
+              <button className="menu-item" onClick={() => showToast('Help coming soon!', 'info')}>
+                ❓ Help & Support
+              </button>
+              <button className="menu-item" onClick={() => showToast('About coming soon!', 'info')}>
+                ℹ️ About PhoneFlip
+              </button>
+              <button className="menu-item logout" onClick={handleLogout}>
+                🚪 Logout
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="auth-required">
+            <div className="empty-icon">👤</div>
+            <h3>Login Required</h3>
+            <p>Please login to view your profile</p>
+            <button className="browse-btn" onClick={() => setCurrentPage('authSelection')}>
+              Login / Register
+            </button>
+          </div>
+        )}
+      </div>
+      
+      <BottomNav />
+    </div>
+  );
+
+  // Messages Page Component
+  const MessagesPage = () => (
+    <div className="page">
+      <Header title="Messages" showBack={true} showProfile={true} />
+      
+      <div className="content">
+        {user ? (
+          conversations.length > 0 ? (
+            <div className="conversations-list">
+              {conversations.map(conversation => (
+                <div key={conversation.id} className="conversation-item" onClick={() => {
+                  setSelectedConversation(conversation);
+                  setCurrentPage('chat');
+                  loadMessages(conversation.id);
+                }}>
+                  <div className="conversation-avatar">
+                    {conversation.other_user.profile_picture ? (
+                      <img src={conversation.other_user.profile_picture} alt={conversation.other_user.name} />
+                    ) : (
+                      <span>{conversation.other_user.name.charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div className="conversation-info">
+                    <h4>{conversation.other_user.name}</h4>
+                    <p className="listing-title">{conversation.listing.title}</p>
+                    <p className="last-message">{conversation.last_message}</p>
+                    <span className="message-time">{conversation.updated_at}</span>
+                  </div>
+                  {conversation.unread_count > 0 && (
+                    <span className="unread-badge">{conversation.unread_count}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <div className="empty-icon">💬</div>
+              <h3>No Messages Yet</h3>
+              <p>Start a conversation by messaging sellers about their phones</p>
+              <button className="browse-btn" onClick={() => setCurrentPage('home')}>
+                Browse Phones
+              </button>
+            </div>
+          )
+        ) : (
+          <div className="auth-required">
+            <div className="empty-icon">💬</div>
+            <h3>Login Required</h3>
+            <p>Please login to view your messages</p>
+            <button className="browse-btn" onClick={() => setCurrentPage('authSelection')}>
+              Login / Register
+            </button>
+          </div>
+        )}
+      </div>
+      
+      <BottomNav />
+    </div>
+  );
+
   // Toast notification
   const ToastNotification = () => (
     toast && (
