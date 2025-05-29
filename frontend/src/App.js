@@ -774,8 +774,8 @@ function App() {
       </div>
       {!compact && context !== "header" && (
         <>
-          <h1 className="logo-text-modern">PhoneFlip</h1>
-          <p className="logo-tagline-modern">Buy • Sell • Exchange</p>
+          <h1 className="logo-text-simple">PhoneFlip</h1>
+          <p className="logo-tagline-simple">your next phone, just a flip away</p>
         </>
       )}
     </div>
