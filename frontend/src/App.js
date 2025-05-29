@@ -1809,9 +1809,9 @@ function App() {
   );
 
   // Modern Phone Card Component
-  const PhoneCard = ({ listing, compact = false, featured = false }) => (
+  const PhoneCard = ({ listing, compact = false, featured = false, onClick }) => (
     <div className={`phone-card-modern ${compact ? 'compact' : ''} ${featured ? 'featured' : ''}`} 
-         onClick={() => setSelectedListing(listing)}>
+         onClick={() => onClick ? onClick(listing) : handlePhoneClick(listing)}>
       <div className="card-image-modern">
         {listing?.images && listing.images.length > 0 ? (
           <img src={listing.images[0]} alt={listing.title} />
