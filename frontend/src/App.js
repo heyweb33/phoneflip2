@@ -985,89 +985,153 @@ function App() {
     );
   };
 
-  // Enhanced Home Page with Logo in Header
+  // Enhanced Home Page with Modern UI Design
   const HomePage = () => (
-    <div className="page landing-page">
+    <div className="page homepage">
       <Header showProfile={true} showLogo={true} />
       
-      <div className="content">
-        {!user && <Logo context="landing-page" />}
-        
-        {/* Welcome back section for logged in users */}
-        {user && (
-          <div className="welcome-section">
-            <h2>Welcome back, {user.name}! 👋</h2>
-            <p>Find your perfect phone or sell yours today</p>
+      <div className="content homepage-content">
+        {/* Hero Section */}
+        {!user ? (
+          <div className="hero-section">
+            <div className="hero-content">
+              <div className="hero-badge">
+                <span className="badge-text">🔥 Trending Now</span>
+              </div>
+              <h1 className="hero-title">Find Your Perfect Phone</h1>
+              <p className="hero-subtitle">Discover amazing deals on premium smartphones from trusted sellers</p>
+              
+              <div className="hero-stats">
+                <div className="stat-item">
+                  <span className="stat-number">50K+</span>
+                  <span className="stat-label">Happy Users</span>
+                </div>
+                <div className="stat-divider"></div>
+                <div className="stat-item">
+                  <span className="stat-number">10K+</span>
+                  <span className="stat-label">Phones Sold</span>
+                </div>
+                <div className="stat-divider"></div>
+                <div className="stat-item">
+                  <span className="stat-number">4.9★</span>
+                  <span className="stat-label">Rating</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="hero-visual">
+              <div className="floating-phones">
+                <div className="phone-float phone-1">📱</div>
+                <div className="phone-float phone-2">📲</div>
+                <div className="phone-float phone-3">📞</div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="welcome-hero">
+            <div className="welcome-content">
+              <div className="welcome-avatar">
+                {user.profile_picture ? (
+                  <img src={user.profile_picture} alt={user.name} />
+                ) : (
+                  <div className="avatar-placeholder">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div className="welcome-text">
+                <h2>Welcome back, {user.name.split(' ')[0]}! 👋</h2>
+                <p>Ready to find your next phone or make a great sale?</p>
+              </div>
+            </div>
+            
+            <div className="quick-actions-hero">
+              <button className="quick-action-btn primary" onClick={() => setCurrentPage('search')}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                Browse Phones
+              </button>
+              <button className="quick-action-btn secondary" onClick={() => setCurrentPage('userTypeSelection')}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                Sell Phone
+              </button>
+            </div>
           </div>
         )}
         
-        <div className="section">
-          <div className="section-header">
-            <h3>Recent Searches</h3>
-            <button className="view-all">View All</button>
+        {/* Trending Searches */}
+        <div className="section modern-section">
+          <div className="section-header modern-header">
+            <div className="header-left">
+              <h3>Trending Searches</h3>
+              <span className="section-subtitle">Popular right now</span>
+            </div>
+            <button className="view-all-modern">
+              <span>View All</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+              </svg>
+            </button>
           </div>
-          <div className="search-history">
-            {searchHistory.slice(0, 8).map((term, index) => (
+          
+          <div className="trending-grid">
+            {searchHistory.slice(0, 6).map((term, index) => (
               <button 
                 key={index} 
-                className="search-chip"
+                className="trending-chip"
                 onClick={() => {
                   setFilters({...filters, search: term});
                   handleSearch(term);
                 }}
               >
-                {term}
+                <div className="chip-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 8V6z"/>
+                  </svg>
+                </div>
+                <span className="chip-text">{term}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Saved Searches for logged in users */}
-        {user && savedSearches.length > 0 && (
-          <div className="section">
-            <div className="section-header">
-              <h3>Saved Searches</h3>
-              <button className="view-all" onClick={() => setCurrentPage('savedSearches')}>View All</button>
+        {/* Featured Listings */}
+        <div className="section modern-section">
+          <div className="section-header modern-header">
+            <div className="header-left">
+              <h3>Featured Phones</h3>
+              <span className="section-subtitle">Handpicked for you</span>
             </div>
-            <div className="search-history">
-              {savedSearches.slice(0, 3).map((search) => (
-                <button 
-                  key={search.id} 
-                  className="search-chip saved"
-                  onClick={() => applySavedSearch(search)}
-                >
-                  {search.name}
-                </button>
-              ))}
-            </div>
+            <button className="view-all-modern" onClick={() => setCurrentPage('searchResults')}>
+              <span>View All</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+              </svg>
+            </button>
           </div>
-        )}
-
-        <div className="section">
-          <div className="section-header">
-            <h3>Recent Listings</h3>
-            <button className="view-all" onClick={() => setCurrentPage('searchResults')}>View All</button>
-          </div>
-          <div className="phone-grid">
+          
+          <div className="featured-listings">
             {listings.length > 0 ? (
               listings.slice(0, 4).map(listing => (
-                <PhoneCard key={listing.id} listing={listing} compact={true} />
+                <PhoneCard key={listing.id} listing={listing} featured={true} />
               ))
             ) : (
-              // Sample listings with images for demo
               Array.from({length: 4}).map((_, index) => (
-                <div key={index} className="phone-card sample">
-                  <div className="phone-image">
-                    <div className="image-placeholder">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                <div key={index} className="phone-card-modern loading">
+                  <div className="card-image">
+                    <div className="image-skeleton">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M17 2H7c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM7 4h10v16H7V4z"/>
                       </svg>
                     </div>
                   </div>
-                  <div className="phone-info">
-                    <h4>Loading phones...</h4>
-                    <p className="phone-condition">Please wait</p>
-                    <p className="phone-price">---</p>
+                  <div className="card-content">
+                    <div className="skeleton-line title"></div>
+                    <div className="skeleton-line price"></div>
+                    <div className="skeleton-line location"></div>
                   </div>
                 </div>
               ))
@@ -1075,42 +1139,58 @@ function App() {
           </div>
         </div>
 
-        {/* Featured Shops Section */}
-        <div className="section">
-          <div className="section-header">
-            <h3>Featured Shops</h3>
-            <button className="view-all">View All</button>
+        {/* Premium Shops */}
+        <div className="section modern-section">
+          <div className="section-header modern-header">
+            <div className="header-left">
+              <h3>Premium Shops</h3>
+              <span className="section-subtitle">Trusted by thousands</span>
+            </div>
+            <button className="view-all-modern">
+              <span>View All</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+              </svg>
+            </button>
           </div>
-          <div className="featured-shops">
+          
+          <div className="premium-shops">
             {[
-              { name: "TechWorld Store", rating: 4.8, phones: 150, verified: true },
-              { name: "Mobile Hub", rating: 4.6, phones: 89, verified: true },
-              { name: "Phone Palace", rating: 4.9, phones: 234, verified: true },
-              { name: "Digital Mart", rating: 4.7, phones: 67, verified: false }
+              { name: "TechWorld Pro", rating: 4.9, phones: 250, verified: true, badge: "Top Seller" },
+              { name: "Mobile Galaxy", rating: 4.8, phones: 189, verified: true, badge: "Premium" },
+              { name: "Digital Kingdom", rating: 4.7, phones: 156, verified: true, badge: "Verified" }
             ].map((shop, index) => (
-              <div key={index} className="shop-card" onClick={() => showToast(`Opening ${shop.name}`, 'info')}>
-                <div className="shop-avatar">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
+              <div key={index} className="shop-card-modern" onClick={() => showToast(`Opening ${shop.name}`, 'info')}>
+                <div className="shop-image">
+                  <div className="shop-avatar-modern">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  </div>
+                  <div className="shop-badge">{shop.badge}</div>
                 </div>
-                <div className="shop-info">
-                  <div className="shop-header">
+                
+                <div className="shop-details">
+                  <div className="shop-name-row">
                     <h4>{shop.name}</h4>
                     {shop.verified && (
-                      <svg className="verified-badge" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="verified-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"/>
                       </svg>
                     )}
                   </div>
-                  <div className="shop-stats">
-                    <span className="rating">
+                  
+                  <div className="shop-metrics">
+                    <div className="metric">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.46,13.97L5.82,21L12,17.27Z"/>
                       </svg>
-                      {shop.rating}
-                    </span>
-                    <span className="phone-count">{shop.phones} phones</span>
+                      <span>{shop.rating}</span>
+                    </div>
+                    <div className="metric-divider">•</div>
+                    <div className="metric">
+                      <span>{shop.phones} phones</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1118,81 +1198,80 @@ function App() {
           </div>
         </div>
 
-        {/* Our Offerings Section */}
-        <div className="section">
-          <div className="section-header">
-            <h3>Our Offerings</h3>
+        {/* Why Choose PhoneFlip */}
+        <div className="section modern-section">
+          <div className="section-header modern-header centered">
+            <div className="header-left centered">
+              <h3>Why Choose PhoneFlip?</h3>
+              <span className="section-subtitle">Your trusted mobile marketplace</span>
+            </div>
           </div>
-          <div className="offerings-grid">
-            <div className="offering-card" onClick={() => showToast('Secure payments coming soon!', 'info')}>
-              <div className="offering-icon">
+          
+          <div className="features-grid">
+            <div className="feature-card" onClick={() => showToast('Secure payments powered by industry standards!', 'info')}>
+              <div className="feature-icon secure">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"/>
                 </svg>
               </div>
-              <h4>Secure Payments</h4>
-              <p>Safe & encrypted transactions</p>
+              <h4>100% Secure</h4>
+              <p>Bank-level security for all transactions</p>
             </div>
 
-            <div className="offering-card" onClick={() => showToast('Quality assurance coming soon!', 'info')}>
-              <div className="offering-icon">
+            <div className="feature-card" onClick={() => showToast('Every phone verified by our experts!', 'info')}>
+              <div className="feature-icon verified">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
                 </svg>
               </div>
-              <h4>Quality Assured</h4>
-              <p>Verified phone conditions</p>
+              <h4>Quality Verified</h4>
+              <p>Every device checked by experts</p>
             </div>
 
-            <div className="offering-card" onClick={() => showToast('Fast delivery coming soon!', 'info')}>
-              <div className="offering-icon">
+            <div className="feature-card" onClick={() => showToast('Lightning fast delivery to your doorstep!', 'info')}>
+              <div className="feature-icon delivery">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M3,4A2,2 0 0,0 1,6V17H3A3,3 0 0,0 6,20A3,3 0 0,0 9,17H15A3,3 0 0,0 18,20A3,3 0 0,0 21,17H23V12L20,8H17V4M3,6H15V15H9.22C8.67,14.39 7.95,14 7.14,14C6.32,14 5.61,14.39 5.06,15H3M17,10H19.5L21.47,12H17M6,15.5A1.5,1.5 0 0,1 7.5,17A1.5,1.5 0 0,1 6,18.5A1.5,1.5 0 0,1 4.5,17A1.5,1.5 0 0,1 6,15.5M18,15.5A1.5,1.5 0 0,1 19.5,17A1.5,1.5 0 0,1 18,18.5A1.5,1.5 0 0,1 16.5,17A1.5,1.5 0 0,1 18,15.5Z"/>
                 </svg>
               </div>
               <h4>Fast Delivery</h4>
-              <p>Quick doorstep delivery</p>
+              <p>Same day delivery available</p>
             </div>
 
-            <div className="offering-card" onClick={() => showToast('Customer support coming soon!', 'info')}>
-              <div className="offering-icon">
+            <div className="feature-card" onClick={() => showToast('24/7 support team ready to help!', 'info')}>
+              <div className="feature-icon support">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"/>
                 </svg>
               </div>
               <h4>24/7 Support</h4>
-              <p>Always here to help</p>
+              <p>Expert help whenever you need</p>
             </div>
           </div>
         </div>
 
-        {user && (
-          <div className="section">
-            <div className="section-header">
-              <h3>Quick Actions</h3>
-            </div>
-            <div className="quick-actions">
-              <button 
-                className="action-btn sell"
-                onClick={() => setCurrentPage('userTypeSelection')}
-              >
-                <div className="action-icon">💰</div>
-                <span>Sell Phone</span>
-              </button>
-              <button 
-                className="action-btn favorites"
-                onClick={() => setCurrentPage('favorites')}
-              >
-                <div className="action-icon">❤️</div>
-                <span>Favorites</span>
-              </button>
-              <button 
-                className="action-btn messages"
-                onClick={() => setCurrentPage('messages')}
-              >
-                <div className="action-icon">💬</div>
-                <span>Messages</span>
-              </button>
+        {/* Call to Action */}
+        {!user && (
+          <div className="cta-section">
+            <div className="cta-content">
+              <div className="cta-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+              <h3>Ready to Get Started?</h3>
+              <p>Join thousands of happy customers buying and selling phones on PhoneFlip</p>
+              <div className="cta-buttons">
+                <button className="cta-btn primary" onClick={() => setCurrentPage('register')}>
+                  <span>Start Selling</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                  </svg>
+                </button>
+                <button className="cta-btn secondary" onClick={() => setCurrentPage('search')}>
+                  Browse Phones
+                </button>
+              </div>
             </div>
           </div>
         )}
