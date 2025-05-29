@@ -597,7 +597,7 @@ function App() {
     <div className={`logo-container ${compact ? 'compact' : ''} ${context}`}>
       <div className="logo-image-container">
         <img 
-          src="https://i.ibb.co/JjYDNHJn/Untitled-design-6.png" 
+          src="https://i.ibb.co/XDhh4Sv/image.png" 
           alt="PhoneFlip Logo" 
           className="logo-image"
           onError={(e) => {
