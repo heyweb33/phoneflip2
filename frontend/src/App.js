@@ -1187,21 +1187,8 @@ function App() {
                 <PhoneCard key={listing.id} listing={listing} featured={true} />
               ))
             ) : (
-              Array.from({length: 4}).map((_, index) => (
-                <div key={index} className="phone-card-modern loading">
-                  <div className="card-image">
-                    <div className="image-skeleton">
-                      <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17 2H7c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM7 4h10v16H7V4z"/>
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="card-content">
-                    <div className="skeleton-line title"></div>
-                    <div className="skeleton-line price"></div>
-                    <div className="skeleton-line location"></div>
-                  </div>
-                </div>
+              samplePhones.slice(0, 4).map(phone => (
+                <PhoneCard key={phone.id} listing={phone} featured={true} />
               ))
             )}
           </div>
