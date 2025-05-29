@@ -1525,6 +1525,16 @@ function App() {
         return <LoginPage />;
       case 'register':
         return <RegistrationForm />;
+      case 'categories':
+        return <CategoriesPage />;
+      case 'search':
+        return <SearchPage />;
+      case 'searchResults':
+        return <SearchResultsPage />;
+      case 'profile':
+        return <ProfilePage />;
+      case 'messages':
+        return <MessagesPage />;
       case 'home':
       default:
         return <HomePage />;
