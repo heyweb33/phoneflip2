@@ -23,7 +23,75 @@ function App() {
     maxPrice: '',
     sortBy: 'recent'
   });
-  const [selectedListing, setSelectedListing] = useState(null);
+  // Sample phone data with realistic details
+  const [samplePhones] = useState([
+    {
+      id: 1,
+      title: "iPhone 15 Pro Max 256GB",
+      brand: "Apple",
+      condition: "Like New",
+      price: 285000,
+      negotiable: true,
+      city: "Karachi",
+      images: ["https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400"],
+      postedDate: "2 days ago"
+    },
+    {
+      id: 2,
+      title: "Samsung Galaxy S24 Ultra 512GB",
+      brand: "Samsung", 
+      condition: "Excellent",
+      price: 245000,
+      negotiable: false,
+      city: "Lahore",
+      images: ["https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400"],
+      postedDate: "1 day ago"
+    },
+    {
+      id: 3,
+      title: "Google Pixel 8 Pro 128GB",
+      brand: "Google",
+      condition: "New",
+      price: 165000,
+      negotiable: true,
+      city: "Islamabad",
+      images: ["https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400"],
+      postedDate: "3 hours ago"
+    },
+    {
+      id: 4,
+      title: "OnePlus 12 256GB Flowy Emerald",
+      brand: "OnePlus",
+      condition: "Like New", 
+      price: 135000,
+      negotiable: true,
+      city: "Faisalabad",
+      images: ["https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400"],
+      postedDate: "5 days ago"
+    },
+    {
+      id: 5,
+      title: "Xiaomi 14 Pro 512GB Black",
+      brand: "Xiaomi",
+      condition: "Excellent",
+      price: 95000,
+      negotiable: false,
+      city: "Multan",
+      images: ["https://images.unsplash.com/photo-1567721913486-6585f069b332?w=400"],
+      postedDate: "1 week ago"
+    },
+    {
+      id: 6,
+      title: "Nothing Phone (2) 256GB White",
+      brand: "Nothing",
+      condition: "New",
+      price: 89000,
+      negotiable: true,
+      city: "Peshawar",
+      images: ["https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=400"],
+      postedDate: "4 days ago"
+    }
+  ]);
   const [searchHistory, setSearchHistory] = useState([
     'iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra', 'Xiaomi 14 Pro', 
     'OnePlus 12', 'Google Pixel 8', 'iPhone 14', 'Samsung S23', 
