@@ -509,9 +509,9 @@ function App() {
     </div>
   );
 
-  // Enhanced Logo Component with your actual logo
-  const Logo = ({ compact = false }) => (
-    <div className={`logo-container ${compact ? 'compact' : ''}`}>
+  // Enhanced Logo Component with Smart Sizing
+  const Logo = ({ compact = false, context = "default" }) => (
+    <div className={`logo-container ${compact ? 'compact' : ''} ${context}`}>
       <div className="logo-image-container">
         <img 
           src="https://i.ibb.co/JjYDNHJn/Untitled-design-6.png" 
@@ -525,7 +525,7 @@ function App() {
         />
         <div className="logo-fallback" style={{display: 'none'}}>
           <div className="logo-icon">
-            <svg width="80" height="80" viewBox="0 0 120 120" fill="none">
+            <svg width="60" height="60" viewBox="0 0 120 120" fill="none">
               <rect width="120" height="120" rx="28" fill="url(#logoGradient)"/>
               <rect x="45" y="35" width="30" height="50" rx="4" fill="white" stroke="none"/>
               <rect x="48" y="40" width="24" height="35" rx="2" fill="#1e40af"/>
@@ -545,7 +545,7 @@ function App() {
           </div>
         </div>
       </div>
-      {!compact && (
+      {!compact && context !== "header" && (
         <>
           <h1 className="logo-text">phoneflip</h1>
           <p className="logo-tagline">Your Next Phone, Just a Flip Away!</p>
