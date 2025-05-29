@@ -1281,35 +1281,75 @@ function App() {
     </div>
   );
 
-  // Phone Card Component
-  const PhoneCard = ({ listing, compact = false }) => (
-    <div className={`phone-card ${compact ? 'compact' : ''}`} onClick={() => setSelectedListing(listing)}>
-      <div className="phone-image">
-        {listing.images && listing.images.length > 0 ? (
+  // Modern Phone Card Component
+  const PhoneCard = ({ listing, compact = false, featured = false }) => (
+    <div className={`phone-card-modern ${compact ? 'compact' : ''} ${featured ? 'featured' : ''}`} 
+         onClick={() => setSelectedListing(listing)}>
+      <div className="card-image-modern">
+        {listing?.images && listing.images.length > 0 ? (
           <img src={listing.images[0]} alt={listing.title} />
         ) : (
-          <div className="image-placeholder">📱</div>
+          <div className="image-placeholder-modern">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17 2H7c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM7 4h10v16H7V4z"/>
+            </svg>
+          </div>
+        )}
+        
+        {featured && (
+          <div className="featured-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.46,13.97L5.82,21L12,17.27Z"/>
+            </svg>
+            Featured
+          </div>
         )}
       </div>
       
       <button 
-        className="favorite-btn"
+        className="favorite-btn-modern"
         onClick={(e) => {
           e.stopPropagation();
-          toggleFavorite(listing.id);
+          toggleFavorite(listing?.id);
         }}
       >
-        {favorites.some(fav => fav.id === listing.id) ? '❤️' : '🤍'}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d={favorites.some(fav => fav.id === listing?.id) 
+            ? "M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5 2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"
+            : "M12.1,18.55L12,18.65L11.89,18.55C7.14,14.24 4,11.39 4,8.5C4,6.5 5.5,5 7.5,5C9.04,5 10.54,6 11.07,7.36H12.93C13.46,6 14.96,5 16.5,5C18.5,5 20,6.5 20,8.5C20,11.39 16.86,14.24 12.1,18.55M16.5,3C14.76,3 13.09,3.81 12,5.08C10.91,3.81 9.24,3 7.5,3C4.42,3 2,5.41 2,8.5C2,12.27 5.4,15.36 10.55,20.03L12,21.35L13.45,20.03C18.6,15.36 22,12.27 22,8.5C22,5.41 19.58,3 16.5,3Z"
+          }/>
+        </svg>
       </button>
       
-      <div className="phone-info">
-        <h4>{listing.title}</h4>
-        <p className="phone-condition">{listing.condition}</p>
-        <p className="phone-price">
-          Rs {listing.price.toLocaleString()}
-          {listing.negotiable && <span className="negotiable-text"> (Negotiable)</span>}
-        </p>
-        <p className="phone-location">📍 {listing.city}</p>
+      <div className="card-content-modern">
+        <h4 className="card-title">{listing?.title || 'Sample Phone'}</h4>
+        
+        <div className="card-condition">
+          <span className={`condition-badge ${(listing?.condition || 'New').toLowerCase().replace(' ', '-')}`}>
+            {listing?.condition || 'New'}
+          </span>
+        </div>
+        
+        <div className="card-price">
+          Rs {listing?.price?.toLocaleString() || '99,999'}
+          {listing?.negotiable && <span className="negotiable-tag">Negotiable</span>}
+        </div>
+        
+        <div className="card-footer">
+          <div className="card-location">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z"/>
+            </svg>
+            {listing?.city || 'Karachi'}
+          </div>
+          
+          <div className="card-time">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+            </svg>
+            2 days ago
+          </div>
+        </div>
       </div>
     </div>
   );
