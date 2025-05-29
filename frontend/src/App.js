@@ -1682,19 +1682,17 @@ function App() {
           </div>
           
           <div className="premium-shops">
-            {[
-              { name: "TechWorld Pro", rating: 4.9, phones: 250, verified: true, badge: "Top Seller" },
-              { name: "Mobile Galaxy", rating: 4.8, phones: 189, verified: true, badge: "Premium" },
-              { name: "Digital Kingdom", rating: 4.7, phones: 156, verified: true, badge: "Verified" }
-            ].map((shop, index) => (
-              <div key={index} className="shop-card-modern" onClick={() => showToast(`Opening ${shop.name}`, 'info')}>
+            {sampleShops.filter(shop => shop.premium).map((shop, index) => (
+              <div key={shop.id} className="shop-card-modern" onClick={() => handleShopClick(shop)}>
                 <div className="shop-image">
                   <div className="shop-avatar-modern">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
+                    {shop.logo ? (
+                      <img src={shop.logo} alt={shop.name} className="shop-logo-img" />
+                    ) : (
+                      <span className="shop-initial">{shop.name.charAt(0)}</span>
+                    )}
                   </div>
-                  <div className="shop-badge">{shop.badge}</div>
+                  <div className="shop-badge">{shop.premium ? 'Premium' : 'Verified'}</div>
                 </div>
                 
                 <div className="shop-details">
@@ -1716,7 +1714,47 @@ function App() {
                     </div>
                     <div className="metric-divider">•</div>
                     <div className="metric">
-                      <span>{shop.phones} phones</span>
+                      <span>{shop.phones.length} phones</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            {/* Add non-premium shops if premium shops are less than 3 */}
+            {sampleShops.filter(shop => !shop.premium).slice(0, 3 - sampleShops.filter(shop => shop.premium).length).map((shop, index) => (
+              <div key={shop.id} className="shop-card-modern" onClick={() => handleShopClick(shop)}>
+                <div className="shop-image">
+                  <div className="shop-avatar-modern">
+                    {shop.logo ? (
+                      <img src={shop.logo} alt={shop.name} className="shop-logo-img" />
+                    ) : (
+                      <span className="shop-initial">{shop.name.charAt(0)}</span>
+                    )}
+                  </div>
+                  <div className="shop-badge">Verified</div>
+                </div>
+                
+                <div className="shop-details">
+                  <div className="shop-name-row">
+                    <h4>{shop.name}</h4>
+                    {shop.verified && (
+                      <svg className="verified-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"/>
+                      </svg>
+                    )}
+                  </div>
+                  
+                  <div className="shop-metrics">
+                    <div className="metric">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.46,13.97L5.82,21L12,17.27Z"/>
+                      </svg>
+                      <span>{shop.rating}</span>
+                    </div>
+                    <div className="metric-divider">•</div>
+                    <div className="metric">
+                      <span>{shop.phones.length} phones</span>
                     </div>
                   </div>
                 </div>
